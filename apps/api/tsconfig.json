@@ -1,6 +1,7 @@
 {
-  "extends": "@repo/typescript-config/hono.json",
+  "extends": "@repo/typescript-config/nestjs.json",
   "compilerOptions": {
-    "verbatimModuleSyntax": true
+    "baseUrl": "./",
+    "outDir": "./dist",
   }
 }
