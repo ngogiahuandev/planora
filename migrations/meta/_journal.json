@@ -8,6 +8,27 @@
       "when": 1755230914178,
       "tag": "0000_panoramic_the_hunter",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1755232287518,
+      "tag": "0001_friendly_sleepwalker",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1755232496754,
+      "tag": "0002_cuddly_chimera",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1755234149688,
+      "tag": "0003_useful_luke_cage",
+      "breakpoints": true
     }
   ]
 }
