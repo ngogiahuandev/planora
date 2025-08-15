@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { AuthenMenu } from '@/components/auth/authen-menu';
 
 // Define navigation menu type
 type NavigationItem = {
@@ -50,12 +50,7 @@ export function Header() {
         {/* Sign In / Sign Up Buttons */}
         <div className="flex items-center space-x-2">
           <ThemeToggle />
-          <Button variant="secondary" asChild>
-            <Link href="/sign-in">Sign In</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/sign-up">Sign Up</Link>
-          </Button>
+          <AuthenMenu />
         </div>
       </div>
     </header>

@@ -8,6 +8,7 @@ import { authClient } from '@/lib/auth-client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -20,6 +21,7 @@ const formSchema = z.object({
 
 export default function SignInForm() {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -39,6 +41,7 @@ export default function SignInForm() {
       }
       if (data) {
         toast.success('Signed in successfully');
+        router.push('/');
       }
     });
   }

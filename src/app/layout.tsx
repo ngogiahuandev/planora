@@ -4,6 +4,7 @@ import './globals.css';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Toaster } from '@/components/ui/sonner';
+import RefreshUserProvider from '@/components/providers/refresh-user-provider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -34,7 +35,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ScrollArea className="h-screen">{children}</ScrollArea>
+          <RefreshUserProvider>
+            <ScrollArea className="h-screen">{children}</ScrollArea>
+          </RefreshUserProvider>
           <Toaster position="bottom-right" richColors />
         </ThemeProvider>
       </body>
