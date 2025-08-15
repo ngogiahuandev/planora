@@ -1,0 +1,37 @@
+# Build output
+.next
+out
+dist
+build
+
+# Dependencies
+node_modules
+
+# Coverage
+coverage
+
+# Generated files
+*.d.ts
+*.min.js
+*.min.css
+
+# Environment
+.env*
+
+# Logs
+*.log
+
+# Config files
+next.config.js
+next.config.ts
+postcss.config.js
+postcss.config.mjs
+tailwind.config.js
+tailwind.config.ts
+
+# Public assets
+public/
+
+# Miscellaneous
+.DS_Store
+Thumbs.db

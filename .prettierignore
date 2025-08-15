@@ -1,0 +1,37 @@
+# Build output
+.next
+out
+dist
+build
+
+# Dependencies
+node_modules
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment
+.env
+.env.*
+
+# Coverage
+coverage
+
+# Editor/OS
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+
+# Generated assets
+*.min.js
+*.min.css
+
+# Misc
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
