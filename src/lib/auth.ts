@@ -1,6 +1,7 @@
 import { db } from '@/db/drizzle';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { admin } from 'better-auth/plugins';
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -20,4 +21,11 @@ export const auth = betterAuth({
       },
     },
   },
+  plugins: [
+    admin({
+      defaultRole: 'regular',
+      adminRoles: ['admin'],
+      defaultBanReason: 'Banned by admin',
+    }),
+  ],
 });

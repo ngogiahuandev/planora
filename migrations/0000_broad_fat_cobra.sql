@@ -23,17 +23,24 @@ CREATE TABLE "session" (
 	"ip_address" text,
 	"user_agent" text,
 	"user_id" text NOT NULL,
+	"impersonated_by" text,
 	CONSTRAINT "session_token_unique" UNIQUE("token")
 );
 --> statement-breakpoint
 CREATE TABLE "user" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
+	"slug" text NOT NULL,
 	"email" text NOT NULL,
 	"email_verified" boolean NOT NULL,
 	"image" text,
+	"role" text,
+	"banned" boolean,
+	"ban_reason" text,
+	"ban_expires" timestamp,
 	"created_at" timestamp NOT NULL,
 	"updated_at" timestamp NOT NULL,
+	CONSTRAINT "user_slug_unique" UNIQUE("slug"),
 	CONSTRAINT "user_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
