@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Toaster } from '@/components/ui/sonner';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -34,6 +35,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ScrollArea className="h-screen">{children}</ScrollArea>
+          <Toaster position="bottom-right" richColors />
         </ThemeProvider>
       </body>
     </html>
