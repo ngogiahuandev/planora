@@ -19,6 +19,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useRouter } from 'next/navigation';
 import { LogOut } from 'lucide-react';
+import Link from 'next/link';
 
 export const AuthenMenu = () => {
   const { data: session } = authClient.useSession();
@@ -51,6 +52,11 @@ export const AuthenMenu = () => {
       <DropdownMenuContent className="w-56" align="end">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuGroup>
+          {session.user.role === 'admin' && (
+            <Link href="/admin" className="w-full">
+              <DropdownMenuItem>Admin</DropdownMenuItem>
+            </Link>
+          )}
           <DropdownMenuItem>
             Profile
             <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
