@@ -1,0 +1,462 @@
+---
+description: Workflow automation, status management, and business process features
+---
+
+# Workflow & Automation Features
+
+## Feature Overview
+
+Comprehensive workflow management system enabling teams to define custom business processes, automate repetitive tasks, and ensure consistent issue handling across projects.
+
+## Core Features
+
+### 1. Workflow Designer
+
+**Description**: Visual workflow editor allowing project administrators to create custom issue transition flows with conditions and validation.
+
+**Components**:
+
+- **Visual Editor**: Drag-and-drop interface for creating workflow diagrams
+- **Status Management**: Define custom statuses with categories and colors
+- **Transition Rules**: Configure allowed transitions between statuses
+- **Condition Builder**: Visual builder for transition conditions
+- **Validation Rules**: Ensure required fields are completed during transitions
+- **Workflow Testing**: Simulate workflows before deployment
+
+**Implementation Pattern**:
+
+```tsx
+// src/components/workflows/WorkflowDesigner.tsx
+export function WorkflowDesigner({ projectId }: { projectId: string }) {
+  const { data: workflow } = useProjectWorkflow(projectId);
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
+
+  const onNodesChange = useCallback((changes: NodeChange[]) => {
+    setNodes((nds) => applyNodeChanges(changes, nds));
+  }, []);
+
+  const onEdgesChange = useCallback((changes: EdgeChange[]) => {
+    setEdges((eds) => applyEdgeChanges(changes, eds));
+  }, []);
+
+  return (
+    <div className="h-[600px] rounded-lg border">
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        nodeTypes={customNodeTypes}
+        edgeTypes={customEdgeTypes}
+      >
+        <Background />
+        <Controls />
+        <MiniMap />
+      </ReactFlow>
+
+      <WorkflowPropertiesPanel
+        selectedNode={selectedNode}
+        selectedEdge={selectedEdge}
+        onUpdateProperties={handlePropertiesUpdate}
+      />
+    </div>
+  );
+}
+```
+
+### 2. Automation Rules
+
+**Description**: Rule-based automation system for triggering actions based on issue events, field changes, and time-based conditions.
+
+**Automation Types**:
+
+- **Field Automation**: Auto-assign issues based on component or labels
+- **Status Automation**: Automatically transition issues when conditions are met
+- **Notification Automation**: Send alerts when specific events occur
+- **Time-based Automation**: Trigger actions after specified time periods
+- **Integration Automation**: Connect with external systems and APIs
+
+**Implementation Pattern**:
+
+```tsx
+// src/components/automation/AutomationRules.tsx
+export function AutomationRules({ projectId }: { projectId: string }) {
+  const { data: rules } = useAutomationRules(projectId);
+  const [selectedRule, setSelectedRule] = useState<AutomationRule>();
+
+  return (
+    <div className="space-y-6">
+      <AutomationHeader onCreateRule={handleCreateRule} />
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <AutomationRulesList
+            rules={rules}
+            selectedRule={selectedRule}
+            onSelectRule={setSelectedRule}
+          />
+        </div>
+
+        <div className="space-y-6">
+          {selectedRule && (
+            <>
+              <RuleOverview rule={selectedRule} />
+              <RuleExecutionHistory ruleId={selectedRule.id} />
+              <RulePerformanceMetrics ruleId={selectedRule.id} />
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+### 3. Status Configuration
+
+**Description**: Comprehensive status management with categories, progression rules, and visual customization.
+
+**Status Features**:
+
+- **Status Categories**: To Do, In Progress, Done with custom subcategories
+- **Status Colors**: Visual indicators for different status types
+- **Progression Rules**: Define logical status ordering and allowed transitions
+- **Time Tracking**: Automatic time logging when entering specific statuses
+- **Resolution Management**: Link statuses to issue resolutions
+
+**Implementation Pattern**:
+
+```tsx
+// src/components/workflows/StatusConfiguration.tsx
+export function StatusConfiguration({ projectId }: { projectId: string }) {
+  const { data: statuses } = useProjectStatuses(projectId);
+  const [editingStatus, setEditingStatus] = useState<IssueStatus>();
+
+  return (
+    <div className="space-y-6">
+      <StatusConfigHeader onCreateStatus={handleCreateStatus} />
+
+      <div className="grid gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Status Flow</CardTitle>
+            <CardDescription>
+              Configure the logical flow of statuses for this project
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <StatusFlowDiagram statuses={statuses} onUpdateFlow={handleFlowUpdate} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Status Details</CardTitle>
+            <CardDescription>Customize individual status properties and behavior</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <StatusTable
+              statuses={statuses}
+              onEditStatus={setEditingStatus}
+              onDeleteStatus={handleDeleteStatus}
+            />
+          </CardContent>
+        </Card>
+      </div>
+
+      {editingStatus && (
+        <StatusEditModal
+          status={editingStatus}
+          onSave={handleStatusSave}
+          onClose={() => setEditingStatus(undefined)}
+        />
+      )}
+    </div>
+  );
+}
+```
+
+### 4. Business Process Templates
+
+**Description**: Pre-built workflow templates for common software development processes and industry best practices.
+
+**Template Categories**:
+
+- **Software Development**: Bug triage, feature development, code review
+- **DevOps**: CI/CD pipelines, deployment workflows, incident response
+- **Support**: Customer support ticket handling, escalation procedures
+- **Marketing**: Campaign management, content approval, launch processes
+- **HR**: Employee onboarding, performance reviews, time-off requests
+
+**Implementation Pattern**:
+
+```tsx
+// src/components/workflows/WorkflowTemplates.tsx
+export function WorkflowTemplates({ onSelectTemplate }: WorkflowTemplatesProps) {
+  const { data: templates } = useWorkflowTemplates();
+  const [selectedCategory, setSelectedCategory] = useState('software-development');
+
+  const filteredTemplates = templates.filter((t) => t.category === selectedCategory);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex gap-4">
+        <CategorySelector
+          categories={templateCategories}
+          selected={selectedCategory}
+          onSelect={setSelectedCategory}
+        />
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {filteredTemplates.map((template) => (
+          <TemplateCard
+            key={template.id}
+            template={template}
+            onSelect={() => onSelectTemplate(template)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+## Data Models
+
+### Workflow Interface
+
+```tsx
+interface Workflow {
+  id: string;
+  name: string;
+  description?: string;
+  projectId: string;
+  statuses: WorkflowStatus[];
+  transitions: WorkflowTransition[];
+  isDefault: boolean;
+  isActive: boolean;
+  version: number;
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy: User;
+}
+
+interface WorkflowStatus {
+  id: string;
+  name: string;
+  description?: string;
+  category: 'todo' | 'in_progress' | 'done';
+  color: string;
+  order: number;
+  properties: {
+    allowComments: boolean;
+    requireResolution: boolean;
+    timeTrackingEnabled: boolean;
+  };
+}
+
+interface WorkflowTransition {
+  id: string;
+  name: string;
+  description?: string;
+  fromStatusId: string;
+  toStatusId: string;
+  conditions: TransitionCondition[];
+  validators: TransitionValidator[];
+  postFunctions: PostFunction[];
+  screen?: TransitionScreen;
+}
+```
+
+### Automation Rules
+
+```tsx
+interface AutomationRule {
+  id: string;
+  name: string;
+  description?: string;
+  projectId: string;
+  isEnabled: boolean;
+  trigger: AutomationTrigger;
+  conditions: AutomationCondition[];
+  actions: AutomationAction[];
+  executionCount: number;
+  lastExecuted?: Date;
+  createdAt: Date;
+  createdBy: User;
+}
+
+interface AutomationTrigger {
+  type: 'issue_created' | 'issue_updated' | 'status_changed' | 'scheduled' | 'webhook';
+  configuration: Record<string, any>;
+}
+
+interface AutomationCondition {
+  field: string;
+  operator: 'equals' | 'not_equals' | 'in' | 'not_in' | 'contains' | 'changed';
+  value: any;
+  logicOperator?: 'AND' | 'OR';
+}
+
+interface AutomationAction {
+  type: 'assign_user' | 'update_field' | 'send_notification' | 'create_issue' | 'webhook';
+  configuration: Record<string, any>;
+  order: number;
+}
+```
+
+### Transition Components
+
+```tsx
+interface TransitionCondition {
+  type: 'permission' | 'field_value' | 'user_role' | 'custom_script';
+  configuration: Record<string, any>;
+  errorMessage?: string;
+}
+
+interface TransitionValidator {
+  type: 'required_fields' | 'field_format' | 'user_permission' | 'custom_validator';
+  configuration: Record<string, any>;
+  errorMessage: string;
+}
+
+interface PostFunction {
+  type: 'update_field' | 'send_notification' | 'create_issue' | 'log_work' | 'custom_function';
+  configuration: Record<string, any>;
+  order: number;
+}
+```
+
+## Advanced Workflow Features
+
+### 1. Conditional Transitions
+
+```tsx
+interface ConditionalTransition {
+  baseTransition: WorkflowTransition;
+  branches: TransitionBranch[];
+}
+
+interface TransitionBranch {
+  conditions: AutomationCondition[];
+  targetStatusId: string;
+  actions: AutomationAction[];
+}
+```
+
+### 2. Parallel Workflows
+
+```tsx
+interface ParallelWorkflow {
+  id: string;
+  name: string;
+  branches: WorkflowBranch[];
+  joinCondition: 'all' | 'any' | 'custom';
+  joinStatus: string;
+}
+
+interface WorkflowBranch {
+  id: string;
+  name: string;
+  workflow: Workflow;
+  assignedTo?: string; // User or team
+}
+```
+
+### 3. Workflow Analytics
+
+```tsx
+interface WorkflowMetrics {
+  workflowId: string;
+  averageTimeInStatus: Record<string, number>;
+  transitionFrequency: Record<string, number>;
+  bottleneckStatuses: string[];
+  throughputTrends: ThroughputPoint[];
+  cycleTimeDistribution: CycleTimeData[];
+}
+
+interface ThroughputPoint {
+  date: Date;
+  issuesCompleted: number;
+  averageCycleTime: number;
+}
+```
+
+## Automation Engine
+
+### 1. Rule Execution Engine
+
+```tsx
+class AutomationEngine {
+  async executeRule(rule: AutomationRule, context: ExecutionContext): Promise<ExecutionResult> {
+    // Validate conditions
+    const conditionsMet = await this.evaluateConditions(rule.conditions, context);
+    if (!conditionsMet) {
+      return { executed: false, reason: 'Conditions not met' };
+    }
+
+    // Execute actions in order
+    const results = [];
+    for (const action of rule.actions) {
+      const result = await this.executeAction(action, context);
+      results.push(result);
+
+      if (!result.success) {
+        await this.handleActionFailure(action, result.error, context);
+      }
+    }
+
+    // Log execution
+    await this.logExecution(rule, context, results);
+
+    return { executed: true, results };
+  }
+}
+```
+
+### 2. Custom Script Support
+
+```tsx
+interface CustomScript {
+  id: string;
+  name: string;
+  language: 'javascript' | 'groovy' | 'python';
+  code: string;
+  inputSchema: JSONSchema;
+  outputSchema: JSONSchema;
+  sandbox: SandboxConfig;
+}
+
+interface SandboxConfig {
+  timeoutMs: number;
+  memoryLimitMB: number;
+  allowedModules: string[];
+  restrictedAPIs: string[];
+}
+```
+
+## Performance Considerations
+
+1. **Rule Optimization**: Analyze rule performance and suggest optimizations
+2. **Batch Processing**: Process multiple automation rules efficiently
+3. **Async Execution**: Run non-critical automations asynchronously
+4. **Caching**: Cache condition evaluations and action results
+5. **Rate Limiting**: Prevent automation storms and resource exhaustion
+
+## Security & Compliance
+
+1. **Permission Validation**: Ensure automation respects user permissions
+2. **Audit Trail**: Log all automation executions for compliance
+3. **Code Review**: Require approval for custom scripts and functions
+4. **Sandboxing**: Isolate custom code execution for security
+5. **Data Privacy**: Respect data protection rules in automated actions
+
+## Testing & Debugging
+
+1. **Workflow Simulation**: Test workflows without affecting real data
+2. **Rule Debugging**: Step-by-step execution with variable inspection
+3. **Performance Profiling**: Identify slow rules and bottlenecks
+4. **Error Handling**: Graceful failure recovery and user notification
+5. **Version Control**: Track workflow changes and enable rollbacks

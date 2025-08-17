@@ -1,0 +1,474 @@
+---
+description: User management, authentication, and team collaboration features
+---
+
+# User Management Features
+
+## Feature Overview
+
+Comprehensive user management system providing authentication, user profiles, team organization, and permission management for secure collaboration.
+
+## Core Features
+
+### 1. Authentication System
+
+**Description**: Secure user authentication with multiple login methods, session management, and security features.
+
+**Authentication Methods**:
+
+- **Email/Password**: Traditional login with password requirements
+- **OAuth Integration**: Google, GitHub, Microsoft SSO
+- **Magic Links**: Passwordless authentication via email
+- **SAML**: Enterprise single sign-on support
+- **Two-Factor Authentication**: TOTP and SMS-based 2FA
+
+**Implementation Pattern**:
+
+```tsx
+// src/components/auth/AuthenticationForm.tsx
+export function AuthenticationForm() {
+  const [authMethod, setAuthMethod] = useState<'login' | 'register' | 'magic-link'>('login');
+  const { signIn, signUp, sendMagicLink } = useAuth();
+
+  return (
+    <Card className="mx-auto max-w-md">
+      <CardHeader>
+        <CardTitle>Welcome to Jira Clone</CardTitle>
+        <CardDescription>
+          {authMethod === 'login' ? 'Sign in to your account' : 'Create a new account'}
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent className="space-y-4">
+        <AuthMethodSelector value={authMethod} onChange={setAuthMethod} />
+
+        {authMethod === 'login' && <LoginForm onSubmit={signIn} />}
+        {authMethod === 'register' && <RegisterForm onSubmit={signUp} />}
+        {authMethod === 'magic-link' && <MagicLinkForm onSubmit={sendMagicLink} />}
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background text-muted-foreground px-2">Or continue with</span>
+          </div>
+        </div>
+
+        <SocialAuthProviders />
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+### 2. User Profile Management
+
+**Description**: Comprehensive user profiles with customization options, preferences, and activity tracking.
+
+**Profile Features**:
+
+- **Personal Information**: Name, email, bio, location, timezone
+- **Avatar Management**: Upload custom avatars or use gravatar
+- **Notification Preferences**: Configure email and in-app notifications
+- **Privacy Settings**: Control profile visibility and data sharing
+- **Activity History**: Track user actions and contributions
+- **API Keys**: Generate tokens for third-party integrations
+
+**Implementation Pattern**:
+
+```tsx
+// src/app/(dashboard)/profile/page.tsx
+export default function ProfilePage() {
+  const { data: user } = useCurrentUser();
+  const [activeTab, setActiveTab] = useState('profile');
+
+  return (
+    <DashboardLayout breadcrumbItems={[{ title: 'Profile' }]}>
+      <div className="space-y-6">
+        <ProfileHeader user={user} />
+
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList>
+            <TabsTrigger value="profile">Profile</TabsTrigger>
+            <TabsTrigger value="preferences">Preferences</TabsTrigger>
+            <TabsTrigger value="security">Security</TabsTrigger>
+            <TabsTrigger value="activity">Activity</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="profile">
+            <ProfileSettingsForm user={user} />
+          </TabsContent>
+
+          <TabsContent value="preferences">
+            <PreferencesForm user={user} />
+          </TabsContent>
+
+          <TabsContent value="security">
+            <SecuritySettingsForm user={user} />
+          </TabsContent>
+
+          <TabsContent value="activity">
+            <UserActivityFeed userId={user.id} />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </DashboardLayout>
+  );
+}
+```
+
+### 3. Team Management
+
+**Description**: Organize users into teams with role-based permissions and project assignments.
+
+**Team Features**:
+
+- **Team Creation**: Create teams with descriptions and avatars
+- **Member Management**: Add/remove team members with different roles
+- **Project Assignment**: Assign teams to specific projects
+- **Permission Inheritance**: Teams inherit permissions from projects
+- **Team Calendars**: Shared calendars for team events and sprints
+- **Team Metrics**: Track team performance and velocity
+
+**Implementation Pattern**:
+
+```tsx
+// src/components/teams/TeamManagement.tsx
+export function TeamManagement({ projectId }: { projectId: string }) {
+  const { data: teams } = useProjectTeams(projectId);
+  const [selectedTeam, setSelectedTeam] = useState<Team>();
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-3">
+      <div className="lg:col-span-2">
+        <TeamsList
+          teams={teams}
+          selectedTeam={selectedTeam}
+          onSelectTeam={setSelectedTeam}
+          onCreateTeam={handleCreateTeam}
+        />
+      </div>
+
+      <div className="space-y-6">
+        {selectedTeam && (
+          <>
+            <TeamOverview team={selectedTeam} />
+            <TeamMembers team={selectedTeam} />
+            <TeamPermissions team={selectedTeam} />
+            <TeamMetrics teamId={selectedTeam.id} />
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+```
+
+### 4. Permission & Role Management
+
+**Description**: Granular permission system with role-based access control and project-level security.
+
+**Permission Levels**:
+
+- **System Admin**: Full system access and configuration
+- **Project Admin**: Full project access and team management
+- **Team Lead**: Team management and sprint planning
+- **Developer**: Issue creation, editing, and commenting
+- **Reporter**: Issue creation and commenting only
+- **Viewer**: Read-only access to assigned projects
+
+**Implementation Pattern**:
+
+```tsx
+// src/components/permissions/PermissionManager.tsx
+export function PermissionManager({ projectId }: { projectId: string }) {
+  const { data: roles } = useProjectRoles(projectId);
+  const { data: permissions } = usePermissionSchema();
+
+  return (
+    <div className="space-y-6">
+      <PermissionHeader />
+
+      <div className="grid gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Project Roles</CardTitle>
+            <CardDescription>
+              Configure roles and their permissions for this project
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <RolePermissionMatrix
+              roles={roles}
+              permissions={permissions}
+              onUpdateRole={handleRoleUpdate}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>User Assignments</CardTitle>
+            <CardDescription>Assign users to specific roles within this project</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <UserRoleAssignments projectId={projectId} roles={roles} />
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+```
+
+## Data Models
+
+### User Interface
+
+```tsx
+interface User {
+  id: string;
+  email: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  displayName: string;
+  avatar?: string;
+  bio?: string;
+  location?: string;
+  timezone: string;
+  locale: string;
+  isActive: boolean;
+  isEmailVerified: boolean;
+  lastLoginAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  preferences: UserPreferences;
+  security: UserSecurity;
+}
+
+interface UserPreferences {
+  theme: 'light' | 'dark' | 'system';
+  language: string;
+  emailNotifications: NotificationSettings;
+  boardSettings: {
+    defaultView: 'list' | 'board';
+    issuesPerPage: number;
+    showSubtasks: boolean;
+  };
+}
+
+interface UserSecurity {
+  twoFactorEnabled: boolean;
+  twoFactorMethod?: 'totp' | 'sms';
+  loginAttempts: number;
+  lockedUntil?: Date;
+  passwordChangedAt: Date;
+  sessions: UserSession[];
+}
+```
+
+### Team Interface
+
+```tsx
+interface Team {
+  id: string;
+  name: string;
+  description?: string;
+  avatar?: string;
+  leadId: string;
+  lead: User;
+  members: TeamMember[];
+  projects: Project[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface TeamMember {
+  userId: string;
+  user: User;
+  teamId: string;
+  role: TeamRole;
+  joinedAt: Date;
+}
+
+interface TeamRole {
+  id: string;
+  name: string;
+  permissions: Permission[];
+  isDefault: boolean;
+}
+```
+
+### Permission System
+
+```tsx
+interface Permission {
+  id: string;
+  name: string;
+  description: string;
+  resource: string; // e.g., 'issue', 'project', 'user'
+  action: string; // e.g., 'create', 'read', 'update', 'delete'
+  conditions?: PermissionCondition[];
+}
+
+interface PermissionCondition {
+  field: string;
+  operator: 'equals' | 'in' | 'contains';
+  value: any;
+}
+
+interface Role {
+  id: string;
+  name: string;
+  description: string;
+  permissions: Permission[];
+  projectId?: string; // null for global roles
+  isDefault: boolean;
+  createdAt: Date;
+}
+```
+
+## Advanced Features
+
+### 1. User Directory & Search
+
+```tsx
+interface UserDirectory {
+  searchUsers(query: string, filters: UserFilters): Promise<User[]>;
+  getUsersByTeam(teamId: string): Promise<User[]>;
+  getUsersByProject(projectId: string): Promise<User[]>;
+  getUserActivity(userId: string, since: Date): Promise<UserActivity[]>;
+}
+
+interface UserFilters {
+  teams?: string[];
+  projects?: string[];
+  roles?: string[];
+  isActive?: boolean;
+  lastLoginSince?: Date;
+}
+```
+
+### 2. Audit Trail
+
+Track all user actions for security and compliance:
+
+```tsx
+interface AuditLog {
+  id: string;
+  userId: string;
+  user: User;
+  action: string;
+  resource: string;
+  resourceId: string;
+  details: Record<string, any>;
+  ipAddress: string;
+  userAgent: string;
+  timestamp: Date;
+}
+```
+
+### 3. User Onboarding
+
+Guided onboarding process for new users:
+
+```tsx
+interface OnboardingStep {
+  id: string;
+  title: string;
+  description: string;
+  component: React.ComponentType;
+  required: boolean;
+  completed: boolean;
+}
+
+const onboardingSteps: OnboardingStep[] = [
+  { id: 'profile', title: 'Complete Profile', ... },
+  { id: 'team', title: 'Join Teams', ... },
+  { id: 'projects', title: 'Explore Projects', ... },
+  { id: 'first-issue', title: 'Create First Issue', ... },
+];
+```
+
+## Security Features
+
+### 1. Session Management
+
+```tsx
+interface UserSession {
+  id: string;
+  userId: string;
+  device: string;
+  browser: string;
+  ipAddress: string;
+  location?: string;
+  isActive: boolean;
+  lastActivityAt: Date;
+  createdAt: Date;
+  expiresAt: Date;
+}
+```
+
+### 2. Rate Limiting
+
+Protect against brute force attacks:
+
+```tsx
+interface RateLimitConfig {
+  loginAttempts: { max: 5; window: '15m' };
+  apiRequests: { max: 1000; window: '1h' };
+  passwordReset: { max: 3; window: '1h' };
+}
+```
+
+### 3. Data Privacy
+
+GDPR compliance features:
+
+```tsx
+interface PrivacySettings {
+  dataRetention: number; // days
+  anonymizeAfterDeletion: boolean;
+  allowDataExport: boolean;
+  consentGiven: boolean;
+  consentDate: Date;
+}
+```
+
+## Integration Patterns
+
+### 1. Permission Checking Hook
+
+```tsx
+const usePermissions = (resource: string, action: string) => {
+  const { data: user } = useCurrentUser();
+  const { data: permissions } = useUserPermissions(user?.id);
+
+  return useMemo(() => {
+    return (
+      permissions?.some(
+        (p) =>
+          p.resource === resource &&
+          p.action === action &&
+          evaluateConditions(p.conditions, context),
+      ) ?? false
+    );
+  }, [permissions, resource, action]);
+};
+```
+
+### 2. Role-Based Route Protection
+
+```tsx
+const ProtectedRoute = ({
+  children,
+  requiredPermission,
+  fallback = <UnauthorizedPage />,
+}: ProtectedRouteProps) => {
+  const hasPermission = usePermissions(requiredPermission.resource, requiredPermission.action);
+
+  return hasPermission ? children : fallback;
+};
+```

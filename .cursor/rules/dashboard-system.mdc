@@ -1,0 +1,66 @@
+---
+alwaysApply: true
+description: Dashboard system architecture and component usage guidelines
+---
+
+# Dashboard System Architecture
+
+## Core Components Structure
+
+The dashboard system is built around these main components in [src/components/dashboard/](mdc:src/components/dashboard/):
+
+- [DashboardLayout](mdc:src/components/dashboard/dashboard-layout.tsx) - Main layout wrapper with SidebarProvider
+- [DashboardSidebar](mdc:src/components/dashboard/dashboard-sidebar.tsx) - Collapsible sidebar using shadcn/ui Sidebar
+- [DashboardHeader](mdc:src/components/dashboard/dashboard-header.tsx) - Header with breadcrumbs
+- [DashboardBreadcrumb](mdc:src/components/dashboard/dashboard-breadcrumb.tsx) - Smart breadcrumb with ellipsis for >5 items
+- [Navigation config](mdc:src/components/dashboard/navigation.ts) - Centralized navigation structure
+- [Types](mdc:src/components/dashboard/types.ts) - TypeScript interfaces
+
+## Key Architecture Principles
+
+1. **Use shadcn/ui Sidebar Components**: Always use the official Sidebar components instead of custom implementations
+2. **Collapsible by Default**: Sidebar should always use `collapsible="icon"` for icon-only collapse mode
+3. **Smart Breadcrumbs**: Automatically truncate breadcrumbs >5 items with ellipsis dropdown
+4. **Centralized Navigation**: Use `defaultSidebarNavigation` or create structured navigation configs
+5. **TypeScript First**: All components must be fully typed with provided interfaces
+
+## Usage Patterns
+
+### Standard Page Layout
+
+```tsx
+import {
+  DashboardLayout,
+  defaultSidebarNavigation,
+  type BreadcrumbItem,
+} from '@/components/dashboard';
+
+const breadcrumbItems: BreadcrumbItem[] = [
+  { title: 'Dashboard', href: '/dashboard' },
+  { title: 'Current Page' },
+];
+
+export default function MyPage() {
+  return (
+    <DashboardLayout sidebarNavigation={defaultSidebarNavigation} breadcrumbItems={breadcrumbItems}>
+      <div className="space-y-6">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight">Page Title</h1>
+          <p className="text-muted-foreground">Page description</p>
+        </div>
+        {/* Page content */}
+      </div>
+    </DashboardLayout>
+  );
+}
+```
+
+### Navigation Structure
+
+Navigation items must include:
+
+- `title`: Display name
+- `href`: Navigation URL
+- `icon`: LucideIcon component (required for collapsed mode)
+- `badge`: Optional badge (string | number)
+- `disabled`: Optional disable state

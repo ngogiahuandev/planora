@@ -1,0 +1,216 @@
+---
+description: Project management features and implementation patterns
+---
+
+# Project Management Features
+
+## Feature Overview
+
+Project management is the foundation of the Jira clone, providing structure for organizing work, teams, and processes.
+
+## Core Features
+
+### 1. Project Creation & Configuration
+
+**Description**: Allow users to create new projects with customizable settings, templates, and initial configuration.
+
+**Components**:
+
+- Project creation wizard with step-by-step setup
+- Project template selection (Scrum, Kanban, Bug tracking)
+- Initial team member assignment
+- Project avatar and branding customization
+
+**Implementation Pattern**:
+
+```tsx
+// src/components/projects/ProjectCreateWizard.tsx
+export function ProjectCreateWizard() {
+  const [step, setStep] = useState(1);
+  const [projectData, setProjectData] = useState<CreateProjectData>();
+
+  return (
+    <Dialog>
+      <DialogContent className="max-w-2xl">
+        <ProjectWizardSteps
+          currentStep={step}
+          data={projectData}
+          onNext={handleNext}
+          onComplete={handleProjectCreate}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}
+```
+
+### 2. Project Dashboard
+
+**Description**: Comprehensive overview showing project health, recent activity, sprint progress, and key metrics.
+
+**Key Metrics**:
+
+- Issues by status distribution
+- Sprint burndown charts
+- Recent activity feed
+- Team velocity trends
+- Upcoming deadlines and releases
+
+**Implementation Pattern**:
+
+```tsx
+// src/app/(dashboard)/projects/[projectId]/page.tsx
+export default function ProjectDashboard({ params }: { params: { projectId: string } }) {
+  const { data: project } = useProject(params.projectId);
+  const { data: metrics } = useProjectMetrics(params.projectId);
+
+  return (
+    <DashboardLayout breadcrumbItems={breadcrumbs}>
+      <div className="space-y-6">
+        <ProjectHeader project={project} />
+        <ProjectMetricsGrid metrics={metrics} />
+        <div className="grid gap-6 lg:grid-cols-2">
+          <SprintProgressCard projectId={params.projectId} />
+          <RecentActivityFeed projectId={params.projectId} />
+        </div>
+      </div>
+    </DashboardLayout>
+  );
+}
+```
+
+### 3. Project Settings
+
+**Description**: Comprehensive project configuration including details, permissions, workflows, and integrations.
+
+**Settings Sections**:
+
+- **Details**: Name, description, avatar, project lead
+- **Permissions**: User roles and access control
+- **Issue Types**: Configure available issue types and fields
+- **Workflows**: Define status transitions and automation
+- **Notifications**: Configure email and in-app notifications
+
+**Implementation Pattern**:
+
+```tsx
+// src/components/projects/ProjectSettings.tsx
+export function ProjectSettings({ projectId }: { projectId: string }) {
+  const [activeTab, setActiveTab] = useState('details');
+
+  return (
+    <div className="flex gap-6">
+      <ProjectSettingsSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      <div className="flex-1">
+        {activeTab === 'details' && <ProjectDetailsSettings projectId={projectId} />}
+        {activeTab === 'permissions' && <ProjectPermissionsSettings projectId={projectId} />}
+        {activeTab === 'workflows' && <ProjectWorkflowSettings projectId={projectId} />}
+      </div>
+    </div>
+  );
+}
+```
+
+### 4. Project List & Navigation
+
+**Description**: Main project listing with search, filtering, and quick access to project features.
+
+**Features**:
+
+- Grid and list view options
+- Search by project name and description
+- Filter by project type, status, and team membership
+- Favorite projects for quick access
+- Recent projects tracking
+
+**Implementation Pattern**:
+
+```tsx
+// src/app/(dashboard)/projects/page.tsx
+export default function ProjectsPage() {
+  const [view, setView] = useState<'grid' | 'list'>('grid');
+  const [filters, setFilters] = useState<ProjectFilters>({});
+  const { data: projects } = useProjects(filters);
+
+  return (
+    <DashboardLayout breadcrumbItems={[{ title: 'Projects' }]}>
+      <div className="space-y-6">
+        <ProjectsHeader
+          view={view}
+          onViewChange={setView}
+          filters={filters}
+          onFiltersChange={setFilters}
+        />
+
+        {view === 'grid' ? (
+          <ProjectsGrid projects={projects} />
+        ) : (
+          <ProjectsList projects={projects} />
+        )}
+      </div>
+    </DashboardLayout>
+  );
+}
+```
+
+## Data Models
+
+### Project Interface
+
+```tsx
+interface Project {
+  id: string;
+  name: string;
+  key: string; // Unique project key (e.g., "PROJ")
+  description?: string;
+  avatar?: string;
+  type: 'scrum' | 'kanban' | 'bug_tracking';
+  lead: User;
+  members: ProjectMember[];
+  settings: ProjectSettings;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface ProjectMember {
+  userId: string;
+  user: User;
+  role: 'admin' | 'developer' | 'viewer';
+  joinedAt: Date;
+}
+
+interface ProjectSettings {
+  issueTypes: string[];
+  statuses: ProjectStatus[];
+  workflows: Workflow[];
+  permissions: ProjectPermissions;
+}
+```
+
+## Navigation Integration
+
+Projects should be integrated into the main navigation:
+
+```tsx
+const projectNavigation: SidebarNavGroup[] = [
+  {
+    title: 'Project',
+    items: [
+      { title: 'Dashboard', href: `/projects/${projectId}`, icon: LayoutDashboard },
+      { title: 'Issues', href: `/projects/${projectId}/issues`, icon: Bug },
+      { title: 'Board', href: `/projects/${projectId}/board`, icon: Columns },
+      { title: 'Backlog', href: `/projects/${projectId}/backlog`, icon: List },
+      { title: 'Reports', href: `/projects/${projectId}/reports`, icon: BarChart3 },
+      { title: 'Settings', href: `/projects/${projectId}/settings`, icon: Settings },
+    ],
+  },
+];
+```
+
+## Best Practices
+
+1. **Project Key Validation**: Ensure project keys are unique and follow naming conventions
+2. **Permission Checking**: Always verify user permissions before allowing project operations
+3. **Audit Logging**: Track all project changes for compliance and debugging
+4. **Data Validation**: Validate all project settings and configurations
+5. **Performance**: Use pagination for large project lists and implement search indexing

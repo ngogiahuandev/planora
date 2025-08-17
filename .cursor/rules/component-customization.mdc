@@ -1,0 +1,208 @@
+---
+description: Guidelines for customizing and extending dashboard components
+---
+
+# Component Customization Guide
+
+## Extending Navigation
+
+### Custom Navigation Structure
+
+Create domain-specific navigation configs based on [defaultSidebarNavigation](mdc:src/components/dashboard/navigation.ts):
+
+```tsx
+import { CustomIcon } from 'lucide-react';
+import { type SidebarNavGroup } from '@/components/dashboard/types';
+
+const customNavigation: SidebarNavGroup[] = [
+  {
+    title: 'Your Domain',
+    items: [
+      {
+        title: 'Custom Page',
+        href: '/dashboard/custom',
+        icon: CustomIcon,
+        badge: 'Beta',
+      },
+    ],
+  },
+];
+
+// Use in DashboardLayout
+<DashboardLayout sidebarNavigation={customNavigation} />;
+```
+
+### Dynamic Navigation
+
+Generate navigation from data or user permissions:
+
+```tsx
+const generateNavigation = (userRole: string): SidebarNavGroup[] => {
+  const baseNavigation = [...defaultSidebarNavigation];
+
+  if (userRole === 'admin') {
+    baseNavigation.push({
+      title: 'Administration',
+      items: [
+        {
+          title: 'Admin Panel',
+          href: '/dashboard/admin',
+          icon: Shield,
+        },
+      ],
+    });
+  }
+
+  return baseNavigation;
+};
+```
+
+## Header Customization
+
+The [DashboardHeader](mdc:src/components/dashboard/dashboard-header.tsx) has a fixed right section with ThemeToggle and AuthenMenu. For custom header content, create a new header component:
+
+```tsx
+import { DashboardBreadcrumb } from '@/components/dashboard';
+
+function CustomDashboardHeader({ breadcrumbItems, customContent }) {
+  return (
+    <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
+      <div className="flex items-center gap-2">
+        <DashboardBreadcrumb items={breadcrumbItems} />
+      </div>
+
+      <div className="ml-auto">{customContent}</div>
+    </header>
+  );
+}
+```
+
+## Sidebar Customization
+
+### Custom Sidebar Content
+
+Extend sidebar with additional sections:
+
+```tsx
+<Sidebar collapsible="icon" className="bg-background border-r-0">
+  <SidebarHeader className="border-sidebar-border bg-background h-12 border-b">
+    {/* Custom header content */}
+  </SidebarHeader>
+
+  <SidebarContent className="bg-background">
+    {/* Standard navigation */}
+    {navigation.map((group) => (
+      <SidebarGroup key={group.title}>{/* ... */}</SidebarGroup>
+    ))}
+
+    {/* Custom additional content */}
+    <SidebarGroup>
+      <SidebarGroupLabel>Custom Section</SidebarGroupLabel>
+      <SidebarGroupContent>{/* Custom content */}</SidebarGroupContent>
+    </SidebarGroup>
+  </SidebarContent>
+
+  <SidebarFooter className="border-sidebar-border bg-background border-t">
+    <SidebarTrigger />
+    {/* Additional footer content */}
+  </SidebarFooter>
+</Sidebar>
+```
+
+### Custom Menu Items
+
+Add non-navigation items to the sidebar:
+
+```tsx
+<SidebarGroup>
+  <SidebarGroupLabel>Tools</SidebarGroupLabel>
+  <SidebarGroupContent>
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <SidebarMenuButton onClick={handleAction}>
+          <Icon />
+          <span>Custom Action</span>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  </SidebarGroupContent>
+</SidebarGroup>
+```
+
+## Breadcrumb Customization
+
+### Custom Truncation Logic
+
+Extend [DashboardBreadcrumb](mdc:src/components/dashboard/dashboard-breadcrumb.tsx) for different truncation rules:
+
+```tsx
+function CustomBreadcrumb({ items, maxItems = 3 }) {
+  if (items.length <= maxItems) {
+    // Show all items
+  } else {
+    // Custom truncation logic
+    const firstItem = items[0];
+    const lastItem = items[items.length - 1];
+    const middleItems = items.slice(1, -1);
+
+    // Render with custom pattern
+  }
+}
+```
+
+### Breadcrumb with Actions
+
+Add action buttons to breadcrumbs:
+
+```tsx
+<header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
+  <div className="flex items-center gap-2">
+    <DashboardBreadcrumb items={breadcrumbItems} />
+  </div>
+
+  <div className="ml-auto flex items-center gap-2">
+    <Button size="sm">
+      <Plus className="mr-2 h-4 w-4" />
+      Add Item
+    </Button>
+    <ThemeToggle />
+    <AuthenMenu />
+  </div>
+</header>
+```
+
+## Layout Variations
+
+### Custom Layout Structure
+
+Create specialized layouts for different page types:
+
+```tsx
+function FormDashboardLayout({ children, breadcrumbItems }) {
+  return (
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full">
+        <DashboardSidebar navigation={formNavigation} />
+        <SidebarInset className="flex flex-col">
+          <CustomDashboardHeader breadcrumbItems={breadcrumbItems} />
+          <main className="mx-auto max-w-4xl flex-1 overflow-auto p-6">{children}</main>
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
+  );
+}
+```
+
+### Conditional Layouts
+
+Switch layouts based on user state or route:
+
+```tsx
+function ConditionalDashboardLayout({ children, variant = 'default' }) {
+  if (variant === 'minimal') {
+    return <MinimalLayout>{children}</MinimalLayout>;
+  }
+
+  return <DashboardLayout sidebarNavigation={defaultSidebarNavigation}>{children}</DashboardLayout>;
+}
+```

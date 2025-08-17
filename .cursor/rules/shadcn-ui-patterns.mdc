@@ -1,0 +1,82 @@
+---
+globs: src/components/**/*.tsx,src/app/**/*.tsx
+description: shadcn/ui component usage patterns and best practices
+---
+
+# shadcn/ui Component Patterns
+
+## Sidebar System Usage
+
+### Required Components
+
+Always use these shadcn/ui Sidebar components from [src/components/ui/sidebar.tsx](mdc:src/components/ui/sidebar.tsx):
+
+- `SidebarProvider` - Wrap entire layout
+- `Sidebar` - Main sidebar container with `collapsible="icon"`
+- `SidebarContent` - Scrollable content area
+- `SidebarHeader` - Top section for branding
+- `SidebarFooter` - Bottom section for controls
+- `SidebarGroup` - Navigation groups
+- `SidebarMenu` - Menu container
+- `SidebarMenuItem` - Individual menu items
+- `SidebarMenuButton` - Interactive menu buttons
+- `SidebarTrigger` - Toggle button
+- `SidebarInset` - Main content area
+
+### Layout Structure
+
+```tsx
+<SidebarProvider>
+  <Sidebar collapsible="icon">
+    <SidebarHeader />
+    <SidebarContent>
+      <SidebarGroup>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton />
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarGroup>
+    </SidebarContent>
+    <SidebarFooter />
+  </Sidebar>
+  <SidebarInset>
+    <header />
+    <main />
+  </SidebarInset>
+</SidebarProvider>
+```
+
+## Breadcrumb Patterns
+
+### Auto-truncation Logic
+
+From [DashboardBreadcrumb](mdc:src/components/dashboard/dashboard-breadcrumb.tsx):
+
+- ≤5 items: Show all items normally
+- > 5 items: Show first + ellipsis dropdown + last 2 items
+- Use `BreadcrumbEllipsis` with `DropdownMenu` for collapsed items
+
+### Required Components
+
+- `Breadcrumb` - Container
+- `BreadcrumbList` - Items container
+- `BreadcrumbItem` - Individual items
+- `BreadcrumbLink` - Clickable links (use with `asChild` and Next.js Link)
+- `BreadcrumbPage` - Current page (non-clickable)
+- `BreadcrumbSeparator` - Separators between items
+- `BreadcrumbEllipsis` - Ellipsis icon for dropdown
+
+## Component State Management
+
+### Sidebar State
+
+- Use `useSidebar()` hook to access: `state`, `toggleSidebar`, `open`, `setOpen`
+- State values: `'expanded'` | `'collapsed'`
+- Animations handled automatically by shadcn/ui
+
+### Responsive Behavior
+
+- Desktop: Collapsible sidebar
+- Mobile: Off-canvas Sheet overlay
+- Auto-detection via `useIsMobile()` hook

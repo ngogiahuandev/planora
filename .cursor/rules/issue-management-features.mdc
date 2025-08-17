@@ -1,0 +1,316 @@
+---
+description: Issue management system features and implementation patterns
+---
+
+# Issue Management Features
+
+## Feature Overview
+
+Issues are the core work items in the Jira clone, representing bugs, stories, tasks, epics, and other work that needs to be tracked and completed.
+
+## Core Features
+
+### 1. Issue Creation
+
+**Description**: Streamlined issue creation with rich text editor, field validation, and template support.
+
+**Components**:
+
+- Issue creation modal with form validation
+- Rich text editor for descriptions with markdown support
+- File attachment and image upload
+- Template selection for common issue types
+- Smart field suggestions based on project configuration
+
+**Implementation Pattern**:
+
+```tsx
+// src/components/issues/CreateIssueModal.tsx
+export function CreateIssueModal({ projectId, isOpen, onClose }: CreateIssueModalProps) {
+  const form = useForm<CreateIssueData>({
+    resolver: zodResolver(createIssueSchema),
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-h-[90vh] max-w-4xl overflow-auto">
+        <DialogHeader>
+          <DialogTitle>Create Issue</DialogTitle>
+        </DialogHeader>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+            <IssueTypeSelector projectId={projectId} />
+            <IssueTitleField />
+            <IssueDescriptionEditor />
+            <IssueFieldsGrid projectId={projectId} />
+            <IssueAttachments />
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+```
+
+### 2. Issue Detail View
+
+**Description**: Comprehensive issue view with all details, comments, history, and related issues.
+
+**Sections**:
+
+- **Header**: Issue key, title, status, assignee, and quick actions
+- **Description**: Rich text description with edit capability
+- **Fields**: All issue fields with inline editing
+- **Comments**: Threaded comments with mentions and reactions
+- **Attachments**: File uploads with preview capabilities
+- **Activity**: Complete audit trail of all changes
+- **Links**: Related issues, sub-tasks, and dependencies
+
+**Implementation Pattern**:
+
+```tsx
+// src/app/(dashboard)/issues/[issueKey]/page.tsx
+export default function IssueDetailPage({ params }: { params: { issueKey: string } }) {
+  const { data: issue } = useIssue(params.issueKey);
+  const { data: comments } = useIssueComments(params.issueKey);
+  const { data: activity } = useIssueActivity(params.issueKey);
+
+  return (
+    <DashboardLayout breadcrumbItems={getBreadcrumbs(issue)}>
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
+          <IssueHeader issue={issue} />
+          <IssueDescription issue={issue} />
+          <IssueComments comments={comments} issueKey={params.issueKey} />
+        </div>
+
+        <div className="space-y-6">
+          <IssueFieldsPanel issue={issue} />
+          <IssueLinksPanel issue={issue} />
+          <IssueActivityPanel activity={activity} />
+        </div>
+      </div>
+    </DashboardLayout>
+  );
+}
+```
+
+### 3. Issue List & Search
+
+**Description**: Powerful issue listing with advanced search, filtering, and bulk operations.
+
+**Features**:
+
+- **Advanced Search**: JQL (Jira Query Language) support for complex queries
+- **Quick Filters**: Pre-defined filters for common searches
+- **Column Customization**: Show/hide and reorder table columns
+- **Bulk Operations**: Update multiple issues simultaneously
+- **Export**: Export filtered results to CSV/Excel
+- **Saved Searches**: Save and share custom search queries
+
+**Implementation Pattern**:
+
+```tsx
+// src/app/(dashboard)/issues/page.tsx
+export default function IssuesPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState<IssueFilters>({});
+  const [selectedIssues, setSelectedIssues] = useState<string[]>([]);
+  const { data: issues } = useIssues({ query: searchQuery, filters });
+
+  return (
+    <DashboardLayout breadcrumbItems={[{ title: 'Issues' }]}>
+      <div className="space-y-6">
+        <IssueSearchHeader
+          query={searchQuery}
+          onQueryChange={setSearchQuery}
+          filters={filters}
+          onFiltersChange={setFilters}
+        />
+
+        <IssueTable
+          issues={issues}
+          selectedIssues={selectedIssues}
+          onSelectionChange={setSelectedIssues}
+        />
+
+        {selectedIssues.length > 0 && (
+          <BulkOperationsBar
+            selectedCount={selectedIssues.length}
+            onBulkUpdate={handleBulkUpdate}
+          />
+        )}
+      </div>
+    </DashboardLayout>
+  );
+}
+```
+
+### 4. Issue Workflows & Transitions
+
+**Description**: Manage issue status changes through defined workflows with validation and automation.
+
+**Components**:
+
+- **Workflow Designer**: Visual workflow editor for admins
+- **Status Transitions**: Available transitions based on current status
+- **Transition Screens**: Custom fields and validation for transitions
+- **Automation**: Trigger actions on status changes
+- **Approval Workflows**: Multi-step approval processes
+
+**Implementation Pattern**:
+
+```tsx
+// src/components/issues/IssueStatusTransition.tsx
+export function IssueStatusTransition({ issue }: { issue: Issue }) {
+  const { data: transitions } = useIssueTransitions(issue.id);
+  const [selectedTransition, setSelectedTransition] = useState<Transition>();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" className="gap-2">
+          <StatusBadge status={issue.status} />
+          <ChevronDown className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent>
+        {transitions?.map((transition) => (
+          <DropdownMenuItem key={transition.id} onClick={() => handleTransition(transition)}>
+            <transition.icon className="mr-2 h-4 w-4" />
+            {transition.name}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+```
+
+## Data Models
+
+### Issue Interface
+
+```tsx
+interface Issue {
+  id: string;
+  key: string; // Unique issue key (e.g., "PROJ-123")
+  projectId: string;
+  project: Project;
+  type: IssueType;
+  status: IssueStatus;
+  priority: IssuePriority;
+  title: string;
+  description?: string;
+  reporter: User;
+  assignee?: User;
+  labels: string[];
+  components: Component[];
+  fixVersions: Version[];
+  affectsVersions: Version[];
+  customFields: Record<string, any>;
+  createdAt: Date;
+  updatedAt: Date;
+  dueDate?: Date;
+  estimatedHours?: number;
+  loggedHours?: number;
+  parentIssue?: Issue;
+  subIssues: Issue[];
+  linkedIssues: IssueLink[];
+}
+
+interface IssueType {
+  id: string;
+  name: string;
+  description?: string;
+  icon: string;
+  color: string;
+  isSubtask: boolean;
+  fields: IssueField[];
+}
+
+interface IssueStatus {
+  id: string;
+  name: string;
+  category: 'todo' | 'in_progress' | 'done';
+  color: string;
+  order: number;
+}
+
+interface Comment {
+  id: string;
+  issueId: string;
+  author: User;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
+  parentId?: string; // For threaded comments
+  mentions: User[];
+  reactions: Reaction[];
+}
+```
+
+## Advanced Features
+
+### 1. Issue Templates
+
+Pre-defined issue templates for common scenarios:
+
+```tsx
+interface IssueTemplate {
+  id: string;
+  name: string;
+  description: string;
+  issueType: string;
+  defaultFields: Record<string, any>;
+  projectId?: string; // null for global templates
+}
+```
+
+### 2. Custom Fields
+
+Configurable fields for different project needs:
+
+```tsx
+interface CustomField {
+  id: string;
+  name: string;
+  type: 'text' | 'number' | 'select' | 'multiselect' | 'date' | 'user';
+  required: boolean;
+  options?: string[]; // For select fields
+  validation?: FieldValidation;
+}
+```
+
+### 3. Issue Linking
+
+Connect related issues:
+
+```tsx
+interface IssueLink {
+  id: string;
+  fromIssue: string;
+  toIssue: string;
+  linkType: 'blocks' | 'relates_to' | 'duplicates' | 'subtask' | 'epic';
+  createdAt: Date;
+  createdBy: User;
+}
+```
+
+## Performance Considerations
+
+1. **Lazy Loading**: Load issue details only when needed
+2. **Pagination**: Implement cursor-based pagination for large result sets
+3. **Caching**: Cache frequently accessed issue data
+4. **Search Indexing**: Use search engines for complex queries
+5. **Real-time Updates**: WebSocket updates for collaborative editing
+
+## Security & Permissions
+
+1. **Field-Level Security**: Control access to sensitive fields
+2. **Project Permissions**: Respect project-level access controls
+3. **Issue Security**: Implement issue-level security schemes
+4. **Audit Trail**: Log all issue changes for compliance
+5. **Data Validation**: Validate all input data and prevent injection attacks

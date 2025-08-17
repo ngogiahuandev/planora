@@ -1,0 +1,392 @@
+---
+description: Agile board and sprint management features for Scrum and Kanban workflows
+---
+
+# Agile Board Features
+
+## Feature Overview
+
+Agile boards provide visual project management through Scrum and Kanban methodologies, enabling teams to track work progress, manage sprints, and optimize workflows.
+
+## Core Features
+
+### 1. Scrum Board
+
+**Description**: Interactive kanban-style board for sprint execution with drag-and-drop functionality and real-time collaboration.
+
+**Components**:
+
+- **Sprint Header**: Current sprint information, dates, and progress indicators
+- **Column Management**: Configurable status columns with work-in-progress limits
+- **Issue Cards**: Compact issue representation with key information
+- **Drag & Drop**: Smooth issue transitions between statuses
+- **Quick Actions**: Inline editing, comments, and status updates
+- **Filtering**: Real-time filtering by assignee, issue type, and labels
+
+**Implementation Pattern**:
+
+```tsx
+// src/components/boards/ScrumBoard.tsx
+export function ScrumBoard({ projectId, sprintId }: ScrumBoardProps) {
+  const { data: sprint } = useSprint(sprintId);
+  const { data: issues } = useSprintIssues(sprintId);
+  const { data: columns } = useBoardColumns(projectId);
+
+  const onDragEnd = useCallback((result: DropResult) => {
+    if (!result.destination) return;
+
+    const { source, destination, draggableId } = result;
+    updateIssueStatus({
+      issueId: draggableId,
+      newStatus: destination.droppableId,
+      newPosition: destination.index,
+    });
+  }, []);
+
+  return (
+    <div className="flex h-full flex-col">
+      <SprintHeader sprint={sprint} />
+      <BoardFilters />
+
+      <DragDropContext onDragEnd={onDragEnd}>
+        <div className="flex flex-1 gap-4 overflow-x-auto p-4">
+          {columns.map((column) => (
+            <BoardColumn
+              key={column.id}
+              column={column}
+              issues={issues.filter((issue) => issue.status.id === column.id)}
+            />
+          ))}
+        </div>
+      </DragDropContext>
+    </div>
+  );
+}
+```
+
+### 2. Backlog Management
+
+**Description**: Prioritized list of issues ready for sprint planning with estimation and epic organization.
+
+**Features**:
+
+- **Epic Panels**: Collapsible sections for organizing issues by epic
+- **Story Estimation**: Planning poker integration for story points
+- **Backlog Refinement**: Bulk editing and issue prioritization
+- **Sprint Planning**: Drag issues from backlog to sprint
+- **Velocity Tracking**: Historical velocity and capacity planning
+
+**Implementation Pattern**:
+
+```tsx
+// src/components/boards/ProductBacklog.tsx
+export function ProductBacklog({ projectId }: { projectId: string }) {
+  const { data: backlogIssues } = useBacklogIssues(projectId);
+  const { data: epics } = useProjectEpics(projectId);
+  const { data: activeSprint } = useActiveSprint(projectId);
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-4">
+      <div className="lg:col-span-3">
+        <BacklogHeader />
+
+        {/* Active Sprint */}
+        {activeSprint && (
+          <SprintPanel sprint={activeSprint} issues={activeSprint.issues} isActive />
+        )}
+
+        {/* Backlog organized by Epics */}
+        <div className="space-y-4">
+          {epics.map((epic) => (
+            <EpicPanel
+              key={epic.id}
+              epic={epic}
+              issues={backlogIssues.filter((issue) => issue.epic?.id === epic.id)}
+            />
+          ))}
+
+          {/* Unassigned Issues */}
+          <BacklogPanel
+            title="Unassigned Issues"
+            issues={backlogIssues.filter((issue) => !issue.epic)}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-6">
+        <SprintPlanningPanel projectId={projectId} />
+        <VelocityChart projectId={projectId} />
+      </div>
+    </div>
+  );
+}
+```
+
+### 3. Sprint Management
+
+**Description**: Complete sprint lifecycle management from planning to retrospective with burndown tracking.
+
+**Sprint Phases**:
+
+- **Planning**: Create sprint, set goals, estimate capacity
+- **Active**: Track progress, update issues, daily standups
+- **Review**: Demo completed work, gather feedback
+- **Retrospective**: Team reflection and process improvement
+- **Completion**: Close sprint, move incomplete work
+
+**Implementation Pattern**:
+
+```tsx
+// src/components/sprints/SprintManagement.tsx
+export function SprintManagement({ projectId }: { projectId: string }) {
+  const { data: sprints } = useProjectSprints(projectId);
+  const [selectedSprint, setSelectedSprint] = useState<Sprint>();
+
+  return (
+    <div className="space-y-6">
+      <SprintManagementHeader onCreateSprint={() => setShowCreateModal(true)} />
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <SprintsList
+            sprints={sprints}
+            selectedSprint={selectedSprint}
+            onSelectSprint={setSelectedSprint}
+          />
+        </div>
+
+        <div className="space-y-6">
+          {selectedSprint && (
+            <>
+              <SprintOverview sprint={selectedSprint} />
+              <SprintBurndownChart sprintId={selectedSprint.id} />
+              <SprintActions sprint={selectedSprint} />
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+### 4. Kanban Board
+
+**Description**: Continuous flow board for teams using Kanban methodology with WIP limits and cycle time tracking.
+
+**Features**:
+
+- **Continuous Flow**: No time-boxed sprints, continuous delivery
+- **WIP Limits**: Configurable work-in-progress limits per column
+- **Cumulative Flow**: Visualize work distribution over time
+- **Cycle Time**: Track how long issues stay in each status
+- **Lead Time**: Measure total time from creation to completion
+
+**Implementation Pattern**:
+
+```tsx
+// src/components/boards/KanbanBoard.tsx
+export function KanbanBoard({ projectId }: { projectId: string }) {
+  const { data: issues } = useKanbanIssues(projectId);
+  const { data: board } = useKanbanBoard(projectId);
+  const [filters, setFilters] = useState<BoardFilters>({});
+
+  const filteredIssues = useMemo(() => applyFilters(issues, filters), [issues, filters]);
+
+  return (
+    <div className="flex h-full flex-col">
+      <KanbanHeader board={board} filters={filters} onFiltersChange={setFilters} />
+
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <div className="flex flex-1 gap-4 overflow-x-auto p-4">
+          {board.columns.map((column) => (
+            <KanbanColumn
+              key={column.id}
+              column={column}
+              issues={filteredIssues.filter((issue) => issue.status.id === column.statusId)}
+              wipLimit={column.wipLimit}
+            />
+          ))}
+        </div>
+      </DragDropContext>
+
+      <BoardFooter totalIssues={filteredIssues.length} cycleTimeMetrics={board.metrics} />
+    </div>
+  );
+}
+```
+
+## Data Models
+
+### Sprint Interface
+
+```tsx
+interface Sprint {
+  id: string;
+  name: string;
+  goal?: string;
+  projectId: string;
+  startDate: Date;
+  endDate: Date;
+  state: 'future' | 'active' | 'closed';
+  issues: Issue[];
+  capacity?: number; // Story points
+  commitment?: number; // Committed story points
+  createdAt: Date;
+  createdBy: User;
+}
+
+interface SprintMetrics {
+  sprintId: string;
+  totalIssues: number;
+  completedIssues: number;
+  totalStoryPoints: number;
+  completedStoryPoints: number;
+  burndownData: BurndownPoint[];
+  velocityData: VelocityPoint[];
+}
+
+interface BurndownPoint {
+  date: Date;
+  remainingWork: number;
+  idealWork: number;
+}
+```
+
+### Board Configuration
+
+```tsx
+interface Board {
+  id: string;
+  name: string;
+  type: 'scrum' | 'kanban';
+  projectId: string;
+  columns: BoardColumn[];
+  settings: BoardSettings;
+}
+
+interface BoardColumn {
+  id: string;
+  name: string;
+  statusId: string;
+  position: number;
+  wipLimit?: number;
+  color?: string;
+}
+
+interface BoardSettings {
+  swimlanes: 'none' | 'assignee' | 'epic' | 'priority';
+  cardFields: string[];
+  quickFilters: QuickFilter[];
+  estimationField?: string;
+}
+```
+
+## Advanced Board Features
+
+### 1. Swimlanes
+
+Organize board by different criteria:
+
+```tsx
+interface Swimlane {
+  id: string;
+  title: string;
+  query: string; // JQL query for filtering issues
+  color?: string;
+  collapsed: boolean;
+}
+```
+
+### 2. Quick Filters
+
+Pre-defined filters for common scenarios:
+
+```tsx
+interface QuickFilter {
+  id: string;
+  name: string;
+  query: string; // JQL query
+  icon?: string;
+  active: boolean;
+}
+```
+
+### 3. Board Insights
+
+Analytics and reporting:
+
+```tsx
+interface BoardInsights {
+  cycleTimes: {
+    average: number;
+    median: number;
+    percentile85: number;
+  };
+  throughput: {
+    weekly: number;
+    monthly: number;
+  };
+  wipTrends: WipTrendPoint[];
+  blockageAnalysis: BlockageData[];
+}
+```
+
+## Real-time Collaboration
+
+### 1. Live Updates
+
+```tsx
+// WebSocket integration for real-time board updates
+const useBoardUpdates = (boardId: string) => {
+  useEffect(() => {
+    const socket = io();
+
+    socket.emit('join-board', boardId);
+
+    socket.on('issue-moved', (data) => {
+      // Update local state
+      queryClient.invalidateQueries(['board-issues', boardId]);
+    });
+
+    socket.on('issue-updated', (data) => {
+      // Update specific issue
+      queryClient.setQueryData(['issue', data.issueId], data.issue);
+    });
+
+    return () => {
+      socket.emit('leave-board', boardId);
+      socket.disconnect();
+    };
+  }, [boardId]);
+};
+```
+
+### 2. User Presence
+
+Show who's currently viewing the board:
+
+```tsx
+interface UserPresence {
+  userId: string;
+  user: User;
+  cursor?: { x: number; y: number };
+  lastSeen: Date;
+}
+```
+
+## Performance Optimizations
+
+1. **Virtual Scrolling**: Handle large numbers of issues efficiently
+2. **Optimistic Updates**: Immediate UI feedback for drag operations
+3. **Debounced Saves**: Batch multiple changes together
+4. **Image Lazy Loading**: Load issue avatars and attachments on demand
+5. **Memoization**: Cache expensive calculations and renders
+
+## Accessibility Features
+
+1. **Keyboard Navigation**: Full keyboard support for drag & drop
+2. **Screen Reader**: Proper ARIA labels and announcements
+3. **High Contrast**: Support for high contrast themes
+4. **Focus Management**: Clear focus indicators and logical tab order
+5. **Reduced Motion**: Respect user preferences for animations

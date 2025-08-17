@@ -18,8 +18,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { DashboardTitle } from '@/components/dashboard/dashbaord-title';
 
-// Define breadcrumb items for users page
 const breadcrumbItems: BreadcrumbItem[] = [
   {
     title: 'Dashboard',
@@ -30,27 +30,15 @@ const breadcrumbItems: BreadcrumbItem[] = [
   },
 ];
 
-// Custom right content for users page
-const usersRightContent = (
-  <div className="flex items-center space-x-2">
-    <Button size="sm">
-      <Plus className="mr-2 h-4 w-4" />
-      Add User
-    </Button>
-  </div>
-);
-
 export default function UsersPage() {
   return (
     <DashboardLayout sidebarNavigation={defaultSidebarNavigation} breadcrumbItems={breadcrumbItems}>
       <div className="space-y-6">
         {/* Page Header */}
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight">Users</h1>
-          <p className="text-muted-foreground">
-            Manage your workspace users and their permissions.
-          </p>
-        </div>
+        <DashboardTitle
+          title="Users"
+          description="Manage your workspace users and their permissions."
+        />
 
         {/* Search and Filters */}
         <div className="flex items-center space-x-2">

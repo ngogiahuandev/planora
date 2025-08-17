@@ -1,0 +1,169 @@
+---
+description: Step-by-step guide for creating new dashboard pages
+---
+
+# Dashboard Page Creation Guide
+
+## File Structure
+
+New dashboard pages should be created in [src/app/dashboard/](mdc:src/app/dashboard/) following Next.js 13+ app router conventions:
+
+```
+src/app/dashboard/
+├── page.tsx              # /dashboard
+├── analytics/page.tsx    # /dashboard/analytics
+├── users/page.tsx        # /dashboard/users
+├── projects/page.tsx     # /dashboard/projects
+├── settings/page.tsx     # /dashboard/settings
+└── [your-page]/page.tsx  # /dashboard/your-page
+```
+
+## Page Template
+
+Use this template for new dashboard pages:
+
+```tsx
+'use client';
+
+import {
+  DashboardLayout,
+  defaultSidebarNavigation,
+  type BreadcrumbItem,
+} from '@/components/dashboard';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
+// Define breadcrumb navigation
+const breadcrumbItems: BreadcrumbItem[] = [
+  {
+    title: 'Dashboard',
+    href: '/dashboard',
+  },
+  {
+    title: 'Your Page Name', // No href for current page
+  },
+];
+
+export default function YourPageName() {
+  return (
+    <DashboardLayout sidebarNavigation={defaultSidebarNavigation} breadcrumbItems={breadcrumbItems}>
+      <div className="space-y-6">
+        {/* Page Header */}
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight">Your Page Title</h1>
+          <p className="text-muted-foreground">Description of what this page does.</p>
+        </div>
+
+        {/* Page Content */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <Card>
+            <CardHeader>
+              <CardTitle>Section Title</CardTitle>
+              <CardDescription>Section description</CardDescription>
+            </CardHeader>
+            <CardContent>{/* Your content here */}</CardContent>
+          </Card>
+        </div>
+      </div>
+    </DashboardLayout>
+  );
+}
+```
+
+## Navigation Integration
+
+### Adding to Sidebar Navigation
+
+If you need to add your page to the sidebar, update [navigation.ts](mdc:src/components/dashboard/navigation.ts):
+
+```tsx
+import { YourIcon } from 'lucide-react';
+
+export const defaultSidebarNavigation: SidebarNavGroup[] = [
+  {
+    title: 'Your Group',
+    items: [
+      {
+        title: 'Your Page',
+        href: '/dashboard/your-page',
+        icon: YourIcon, // Required for collapsed mode
+        badge: 'New', // Optional
+      },
+    ],
+  },
+];
+```
+
+### Breadcrumb Patterns
+
+**Simple breadcrumb** (≤5 items):
+
+```tsx
+const breadcrumbItems: BreadcrumbItem[] = [
+  { title: 'Dashboard', href: '/dashboard' },
+  { title: 'Settings' },
+];
+```
+
+**Complex breadcrumb** (>5 items - will auto-truncate):
+
+```tsx
+const breadcrumbItems: BreadcrumbItem[] = [
+  { title: 'Dashboard', href: '/dashboard' },
+  { title: 'Management', href: '/dashboard/management' },
+  { title: 'Teams', href: '/dashboard/teams' },
+  { title: 'Projects', href: '/dashboard/projects' },
+  { title: 'Tasks', href: '/dashboard/tasks' },
+  { title: 'Current Task' }, // No href for current page
+];
+```
+
+## Content Patterns
+
+### Metrics Cards
+
+```tsx
+<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+  <Card>
+    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardTitle className="text-sm font-medium">Metric Name</CardTitle>
+      <Icon className="text-muted-foreground h-4 w-4" />
+    </CardHeader>
+    <CardContent>
+      <div className="text-2xl font-bold">1,234</div>
+      <p className="text-muted-foreground text-xs">+12% from last month</p>
+    </CardContent>
+  </Card>
+</div>
+```
+
+### Data Tables
+
+```tsx
+<Card>
+  <CardHeader>
+    <CardTitle>Table Title</CardTitle>
+    <CardDescription>Table description</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <Table>{/* Table content */}</Table>
+  </CardContent>
+</Card>
+```
+
+### Forms
+
+```tsx
+<Card>
+  <CardHeader>
+    <CardTitle>Form Title</CardTitle>
+    <CardDescription>Form description</CardDescription>
+  </CardHeader>
+  <CardContent className="space-y-4">
+    <div className="space-y-2">
+      <Label htmlFor="field">Field Label</Label>
+      <Input id="field" placeholder="Placeholder" />
+    </div>
+    <Button>Submit</Button>
+  </CardContent>
+</Card>
+```

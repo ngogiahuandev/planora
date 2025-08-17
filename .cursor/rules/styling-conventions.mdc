@@ -1,0 +1,119 @@
+---
+globs: *.tsx,*.ts
+description: Styling conventions and Tailwind CSS patterns for dashboard components
+---
+
+# Styling Conventions
+
+## Dashboard Layout Styling
+
+### Header Height
+
+- Standard header height: `h-12` (3rem/48px)
+- Use `shrink-0` to prevent flex shrinking
+- Border: `border-b` for bottom border
+
+### Content Structure
+
+```tsx
+<div className="space-y-6">
+  {/* Page Header */}
+  <div className="space-y-1">
+    <h1 className="text-2xl font-bold tracking-tight">Page Title</h1>
+    <p className="text-muted-foreground">Page description</p>
+  </div>
+
+  {/* Content sections with consistent spacing */}
+</div>
+```
+
+### Grid Layouts
+
+Standard responsive grid patterns:
+
+```tsx
+// Cards grid
+<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+
+// Two column layout
+<div className="grid gap-6 lg:grid-cols-2">
+
+// Four column metrics
+<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+```
+
+## Sidebar Styling
+
+### Background Colors
+
+- Sidebar: `bg-background` (follows theme)
+- Header/Footer: `bg-background` with `border-sidebar-border`
+- Content: `bg-background`
+
+### Border Patterns
+
+- Sidebar: `border-r-0` (no right border, handled by SidebarInset)
+- Header: `border-b border-sidebar-border`
+- Footer: `border-t border-sidebar-border`
+
+### Menu Item Styling
+
+```tsx
+// Use consistent button styling
+<SidebarMenuButton className="rounded-sm">
+  <Icon />
+  <span>{title}</span>
+  {badge && <SidebarMenuBadge>{badge}</SidebarMenuBadge>}
+</SidebarMenuButton>
+```
+
+## Breadcrumb Styling
+
+### Fragment Pattern
+
+Use React fragments for conditional separators:
+
+```tsx
+{
+  items.map((item, index) => (
+    <>
+      {index > 0 && <BreadcrumbSeparator />}
+      <BreadcrumbItem>{/* breadcrumb content */}</BreadcrumbItem>
+    </>
+  ));
+}
+```
+
+## Color System
+
+### Text Colors
+
+- Primary text: `text-foreground`
+- Secondary text: `text-muted-foreground`
+- Sidebar text: `text-sidebar-foreground`
+
+### Background Colors
+
+- Main background: `bg-background`
+- Sidebar background: `bg-sidebar` or `bg-background`
+- Card backgrounds: Default Card component styling
+
+### Interactive States
+
+- Hover: `hover:bg-accent hover:text-accent-foreground`
+- Active: `bg-accent text-accent-foreground`
+- Focus: Ring utilities from shadcn/ui components
+
+## Responsive Utilities
+
+### Common Breakpoints
+
+- `md:` - 768px and up (tablet)
+- `lg:` - 1024px and up (desktop)
+- Default - mobile first
+
+### Spacing Scale
+
+- Page sections: `space-y-6`
+- Related elements: `space-y-1` to `space-y-4`
+- Component internal: `gap-2` to `gap-6`
