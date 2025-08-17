@@ -1,0 +1,54 @@
+---
+alwaysApply: true
+---
+
+# Planora – Task & Team Management
+
+Planora is a lightweight Jira-like app designed for managing tasks, projects, and teams with clarity and simplicity.  
+It helps teams collaborate efficiently, track progress, and stay organized without unnecessary complexity.
+
+---
+
+## 🎯 MVP Features
+
+### 1. Task Management
+
+- Create, edit, and delete tasks
+- Assign tasks to team members
+- Set task priority (Low, Medium, High)
+- Track task status (To Do, In Progress, Done)
+- Due dates and deadlines
+
+### 2. Project Boards
+
+- Kanban-style board view
+- Drag-and-drop task organization
+- Filter and search tasks by status, assignee, or priority
+
+### 3. Team Collaboration
+
+- Invite and manage team members
+- Role-based access (Admin, Member)
+- User avatars and basic profiles
+
+### 4. Comments & Activity
+
+- Comment on tasks for discussion
+- Task activity log (creation, updates, status changes)
+
+### 5. Notifications
+
+- In-app notifications for task assignments and updates
+- Reminders for upcoming deadlines
+
+### 6. Dashboard & Overview
+
+- Project overview with task counts per status
+- Personal dashboard with assigned tasks
+- Progress tracking indicators
+
+---
+
+## ✅ Goal of MVP
+
+The MVP focuses on **core task and team management features** that allow small teams to plan, organize, and execute work effectively without the overhead of a heavy enterprise tool.
