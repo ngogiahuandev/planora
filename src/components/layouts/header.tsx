@@ -23,7 +23,7 @@ export function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="bg-background border-border sticky top-0 right-0 left-0 z-50 h-16 w-full border-b px-4">
+    <header className="bg-background border-border sticky top-0 right-0 left-0 z-50 h-12 w-full border-b px-4">
       <div className="flex h-full items-center justify-between">
         <div className="flex items-center space-x-8">
           {/* Logo */}

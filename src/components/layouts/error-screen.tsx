@@ -1,11 +1,14 @@
+import { cn } from '@/lib/utils';
+
 interface ErrorScreenProps {
   code: string | number;
   message: string;
+  className?: string;
 }
 
-export function ErrorScreen({ code, message }: ErrorScreenProps) {
+export function ErrorScreen({ code, message, className }: ErrorScreenProps) {
   return (
-    <div className="bg-background flex min-h-screen items-center justify-center p-4">
+    <div className={cn('bg-background flex h-screen items-center justify-center p-4', className)}>
       <div className="w-full max-w-md text-center">
         {/* Error code - big but muted to blend with background */}
         <div className="text-muted-foreground/30 mb-4 font-mono text-8xl font-light">{code}</div>

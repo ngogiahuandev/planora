@@ -1,7 +1,13 @@
 'use client';
 
 import { ErrorScreen } from '@/components/layouts/error-screen';
+import { Header } from '@/components/layouts/header';
 
 export default function Error() {
-  return <ErrorScreen code="500" message="Internal server error" />;
+  return (
+    <>
+      <Header />
+      <ErrorScreen code="500" message="Internal server error" className="h-[calc(100vh-4rem)]" />
+    </>
+  );
 }
