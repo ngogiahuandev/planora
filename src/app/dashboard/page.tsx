@@ -1,17 +1,11 @@
 'use client';
 
-import {
-  DashboardLayout,
-  defaultSidebarNavigation,
-  type BreadcrumbItem,
-} from '@/components/dashboard';
+import { DashboardLayout, type BreadcrumbItem } from '@/components/dashboard';
 import { getSidebarNavigationWithPermissions } from '@/lib/dashboard-navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { authClient } from '@/lib/auth-client';
-import { regular } from '@/lib/permissions';
 import { Users, FileText, CreditCard, MessageSquare, Calendar, Bell } from 'lucide-react';
 
-// Define breadcrumb items for dashboard page
 const breadcrumbItems: BreadcrumbItem[] = [
   {
     title: 'Dashboard',

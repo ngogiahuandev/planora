@@ -16,7 +16,7 @@ export const AccessControlProvider = ({ children, permissions }: AccessControlPr
   const { data: session } = authClient.useSession();
 
   if (!session) {
-    return redirect('/login');
+    return redirect('/');
   }
 
   const hasAccess = checkPermission(session.user.role ?? '', permissions);
