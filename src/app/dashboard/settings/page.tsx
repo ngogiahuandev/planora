@@ -1,12 +1,15 @@
 'use client';
 
-import { DashboardLayout, type BreadcrumbItem } from '@/components/dashboard';
+import {
+  DashboardLayout,
+  defaultSidebarNavigation,
+  type BreadcrumbItem,
+} from '@/components/dashboard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { useRole } from '@/components/providers/role-provider';
 
 // Define breadcrumb items with 3 items (less than 5) to show normal display
 const breadcrumbItems: BreadcrumbItem[] = [
@@ -20,10 +23,8 @@ const breadcrumbItems: BreadcrumbItem[] = [
 ];
 
 export default function SettingsPage() {
-  const { sidebarNavigation } = useRole();
-
   return (
-    <DashboardLayout sidebarNavigation={sidebarNavigation} breadcrumbItems={breadcrumbItems}>
+    <DashboardLayout sidebarNavigation={defaultSidebarNavigation} breadcrumbItems={breadcrumbItems}>
       <div className="space-y-6">
         {/* Page Header */}
         <div className="space-y-1">

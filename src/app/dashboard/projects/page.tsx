@@ -1,8 +1,11 @@
 'use client';
 
-import { DashboardLayout, type BreadcrumbItem } from '@/components/dashboard';
+import {
+  DashboardLayout,
+  defaultSidebarNavigation,
+  type BreadcrumbItem,
+} from '@/components/dashboard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useRole } from '@/components/providers/role-provider';
 
 // Define breadcrumb items with more than 5 items to test the ellipsis functionality
 const breadcrumbItems: BreadcrumbItem[] = [
@@ -29,10 +32,8 @@ const breadcrumbItems: BreadcrumbItem[] = [
 ];
 
 export default function ProjectsPage() {
-  const { sidebarNavigation } = useRole();
-
   return (
-    <DashboardLayout sidebarNavigation={sidebarNavigation} breadcrumbItems={breadcrumbItems}>
+    <DashboardLayout sidebarNavigation={defaultSidebarNavigation} breadcrumbItems={breadcrumbItems}>
       <div className="space-y-6">
         {/* Page Header */}
         <div className="space-y-1">

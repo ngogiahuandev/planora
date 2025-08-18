@@ -91,15 +91,19 @@ export const getSidebarNavigationWithPermissions = (role: string) => {
     .map((group) => ({
       ...group,
       items: group.items.filter((item) => {
+        // Show all items if user is admin (admin has full permissions)
         if (role === 'admin') {
           return true;
         }
 
+        // For regular users, check if they have full CRUD permissions
+        // Check each permission type in rolePermissions
         for (const [permissionType, permissions] of Object.entries(rolePermissions)) {
           const hasCreatePermission = permissions.includes('create');
           const hasUpdatePermission = permissions.includes('update');
           const hasDeletePermission = permissions.includes('delete');
 
+          // If this permission type has full CRUD, show the item
           if (hasCreatePermission && hasUpdatePermission && hasDeletePermission) {
             return true;
           }
