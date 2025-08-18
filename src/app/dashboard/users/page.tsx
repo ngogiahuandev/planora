@@ -1,12 +1,6 @@
-import {
-  DashboardLayout,
-  defaultSidebarNavigation,
-  type BreadcrumbItem,
-} from '@/components/dashboard';
+import { DashboardLayout, type BreadcrumbItem } from '@/components/dashboard';
 import { DashboardTitle } from '@/components/dashboard/dashbaord-title';
 import { UserDataTable } from '@/components/data-table/user-data-table/user-data-table';
-import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
 
 const breadcrumbItems: BreadcrumbItem[] = [
   {

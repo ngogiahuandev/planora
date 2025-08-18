@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { formatSlug } from '@/lib/slug';
-import { User } from '@/types/db';
+import { User } from '@/db/db';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 
@@ -25,15 +25,6 @@ export const userDataTableColumns = (offset: number = 0): ColumnDef<User>[] => [
     ),
     size: 60,
   },
-  // {
-  //   accessorKey: 'id',
-  //   header: 'ID',
-  //   cell: ({ row }) => (
-  //     <div className="text-muted-foreground font-mono text-xs">
-  //       {row.getValue('id')?.toString().slice(0, 8)}...
-  //     </div>
-  //   ),
-  // },
   {
     accessorKey: 'image',
     header: 'Image',
@@ -88,63 +79,6 @@ export const userDataTableColumns = (offset: number = 0): ColumnDef<User>[] => [
         <Badge variant={roleVariants[role] || 'outline'} className="capitalize">
           {role || 'user'}
         </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: 'banned',
-    header: 'Status',
-    cell: ({ row }) => {
-      const isBanned = row.getValue('banned') as boolean;
-
-      return (
-        <div className="flex items-center space-x-2">
-          {isBanned ? (
-            <Badge variant="destructive">Banned</Badge>
-          ) : (
-            <Badge variant="default">Active</Badge>
-          )}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: 'banReason',
-    header: 'Ban Reason',
-    cell: ({ row }) => {
-      const banReason = row.getValue('banReason') as string;
-      const isBanned = row.original.banned;
-
-      return (
-        <div className="max-w-[200px]">
-          {isBanned && banReason ? (
-            <span className="text-muted-foreground block truncate text-sm">{banReason}</span>
-          ) : (
-            <span className="text-muted-foreground text-sm">-</span>
-          )}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: 'banExpires',
-    header: 'Ban Expires',
-    cell: ({ row }) => {
-      const banExpires = row.getValue('banExpires') as Date;
-      const isBanned = row.original.banned;
-
-      return (
-        <div className="flex flex-col">
-          {isBanned && banExpires ? (
-            <span className="text-muted-foreground text-sm">
-              {format(new Date(banExpires), 'h:mm a, MMMM dd, yyyy')}
-            </span>
-          ) : isBanned ? (
-            <span className="text-muted-foreground text-sm">Permanent</span>
-          ) : (
-            <span className="text-muted-foreground text-sm">-</span>
-          )}
-        </div>
       );
     },
   },
