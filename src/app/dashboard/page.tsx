@@ -1,11 +1,8 @@
 'use client';
 
-import {
-  DashboardLayout,
-  defaultSidebarNavigation,
-  type BreadcrumbItem,
-} from '@/components/dashboard';
+import { DashboardLayout, type BreadcrumbItem } from '@/components/dashboard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useRole } from '@/components/providers/role-provider';
 import { Users, FileText, CreditCard, MessageSquare, Calendar, Bell } from 'lucide-react';
 
 // Define breadcrumb items for dashboard page
@@ -17,14 +14,18 @@ const breadcrumbItems: BreadcrumbItem[] = [
 ];
 
 export default function DashboardPage() {
+  const { sidebarNavigation, user } = useRole();
+
   return (
-    <DashboardLayout sidebarNavigation={defaultSidebarNavigation} breadcrumbItems={breadcrumbItems}>
+    <DashboardLayout sidebarNavigation={sidebarNavigation} breadcrumbItems={breadcrumbItems}>
       <div className="space-y-6">
         {/* Page Header */}
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Welcome back, {user?.name || 'User'}!
+          </h1>
           <p className="text-muted-foreground">
-            Welcome to your dashboard. Here's an overview of your workspace.
+            Here's an overview of your workspace and recent activity.
           </p>
         </div>
 

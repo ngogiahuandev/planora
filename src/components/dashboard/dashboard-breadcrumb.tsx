@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { BreadcrumbItem as BreadcrumbItemType } from './types';
+import { Fragment } from 'react';
 
 interface DashboardBreadcrumbProps {
   items: BreadcrumbItemType[];
@@ -33,7 +34,7 @@ export function DashboardBreadcrumb({ items }: DashboardBreadcrumbProps) {
       <Breadcrumb>
         <BreadcrumbList>
           {items.map((item, index) => (
-            <>
+            <Fragment key={index}>
               {index > 0 && <BreadcrumbSeparator />}
               <BreadcrumbItem>
                 {index === items.length - 1 ? (
@@ -44,7 +45,7 @@ export function DashboardBreadcrumb({ items }: DashboardBreadcrumbProps) {
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>
-            </>
+            </Fragment>
           ))}
         </BreadcrumbList>
       </Breadcrumb>

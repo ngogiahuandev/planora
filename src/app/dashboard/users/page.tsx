@@ -1,13 +1,10 @@
 'use client';
 
-import {
-  DashboardLayout,
-  defaultSidebarNavigation,
-  type BreadcrumbItem,
-} from '@/components/dashboard';
-import { Plus, Search } from 'lucide-react';
+import { DashboardLayout, type BreadcrumbItem } from '@/components/dashboard';
+import { DashboardTitle } from '@/components/dashboard/dashbaord-title';
+import { useRole } from '@/components/providers/role-provider';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   Table,
@@ -17,8 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { DashboardTitle } from '@/components/dashboard/dashbaord-title';
+import { Search } from 'lucide-react';
 
 const breadcrumbItems: BreadcrumbItem[] = [
   {
@@ -31,8 +27,10 @@ const breadcrumbItems: BreadcrumbItem[] = [
 ];
 
 export default function UsersPage() {
+  const { sidebarNavigation } = useRole();
+
   return (
-    <DashboardLayout sidebarNavigation={defaultSidebarNavigation} breadcrumbItems={breadcrumbItems}>
+    <DashboardLayout sidebarNavigation={sidebarNavigation} breadcrumbItems={breadcrumbItems}>
       <div className="space-y-6">
         {/* Page Header */}
         <DashboardTitle

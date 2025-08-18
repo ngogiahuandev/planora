@@ -1,11 +1,8 @@
 'use client';
 
-import {
-  DashboardLayout,
-  defaultSidebarNavigation,
-  type BreadcrumbItem,
-} from '@/components/dashboard';
+import { DashboardLayout, type BreadcrumbItem } from '@/components/dashboard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useRole } from '@/components/providers/role-provider';
 
 // Define breadcrumb items for analytics page
 const breadcrumbItems: BreadcrumbItem[] = [
@@ -19,8 +16,10 @@ const breadcrumbItems: BreadcrumbItem[] = [
 ];
 
 export default function AnalyticsPage() {
+  const { sidebarNavigation } = useRole();
+
   return (
-    <DashboardLayout sidebarNavigation={defaultSidebarNavigation} breadcrumbItems={breadcrumbItems}>
+    <DashboardLayout sidebarNavigation={sidebarNavigation} breadcrumbItems={breadcrumbItems}>
       <div className="space-y-6">
         {/* Page Header */}
         <div className="space-y-1">

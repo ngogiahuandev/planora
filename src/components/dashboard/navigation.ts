@@ -11,8 +11,8 @@ import {
   Zap,
 } from 'lucide-react';
 import { SidebarNavGroup } from './types';
+import { admin, regular } from '@/lib/permissions';
 
-// Centralized sidebar navigation configuration
 export const defaultSidebarNavigation: SidebarNavGroup[] = [
   {
     title: 'Overview',
@@ -83,3 +83,30 @@ export const defaultSidebarNavigation: SidebarNavGroup[] = [
     ],
   },
 ];
+
+export const getSidebarNavigationWithPermissions = (role: string) => {
+  const rolePermissions = role === 'admin' ? admin.statements : regular.statements;
+
+  return defaultSidebarNavigation
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => {
+        if (role === 'admin') {
+          return true;
+        }
+
+        for (const [permissionType, permissions] of Object.entries(rolePermissions)) {
+          const hasCreatePermission = permissions.includes('create');
+          const hasUpdatePermission = permissions.includes('update');
+          const hasDeletePermission = permissions.includes('delete');
+
+          if (hasCreatePermission && hasUpdatePermission && hasDeletePermission) {
+            return true;
+          }
+        }
+
+        return false;
+      }),
+    }))
+    .filter((group) => group.items.length > 0);
+};

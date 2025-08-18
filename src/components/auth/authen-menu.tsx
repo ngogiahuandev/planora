@@ -52,19 +52,13 @@ export const AuthenMenu = () => {
       <DropdownMenuContent className="w-56" align="end">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuGroup>
-          {session.user.role === 'admin' && (
-            <Link href="/admin" className="w-full">
-              <DropdownMenuItem>Admin</DropdownMenuItem>
-            </Link>
-          )}
           <DropdownMenuItem>
             Profile
             <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            Billing
-            <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
-          </DropdownMenuItem>
+          <Link href="/dashboard">
+            <DropdownMenuItem>Dashboard</DropdownMenuItem>
+          </Link>
           <DropdownMenuItem>
             Settings
             <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>

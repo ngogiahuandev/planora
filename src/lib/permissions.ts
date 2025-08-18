@@ -9,7 +9,7 @@ const statement = {
 export const ac = createAccessControl(statement);
 
 export const admin = ac.newRole({
-  project: ['create', 'update', 'delete'],
+  project: ['create', 'update', 'delete', 'read'],
   ...adminAc.statements,
 });
 
