@@ -6,7 +6,7 @@ export interface SidebarNavItem {
   icon: LucideIcon;
   badge?: string | number;
   disabled?: boolean;
-  requiredPermission?: boolean;
+  permission?: string;
 }
 
 export interface SidebarNavGroup {

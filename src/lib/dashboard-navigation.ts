@@ -10,7 +10,7 @@ import {
   MessageSquare,
   Zap,
 } from 'lucide-react';
-import { SidebarNavGroup } from './types';
+import { SidebarNavGroup } from '../components/dashboard/types';
 import { admin, regular } from '@/lib/permissions';
 
 export const defaultSidebarNavigation: SidebarNavGroup[] = [
@@ -38,22 +38,26 @@ export const defaultSidebarNavigation: SidebarNavGroup[] = [
         href: '/dashboard/users',
         icon: Users,
         badge: 12,
+        permission: 'user',
       },
       {
         title: 'Projects',
         href: '/dashboard/projects',
         icon: FileText,
+        permission: 'project',
       },
       {
         title: 'Calendar',
         href: '/dashboard/calendar',
         icon: Calendar,
+        permission: 'calendar',
       },
       {
         title: 'Messages',
         href: '/dashboard/messages',
         icon: MessageSquare,
         badge: 3,
+        permission: 'messages',
       },
     ],
   },
@@ -64,21 +68,25 @@ export const defaultSidebarNavigation: SidebarNavGroup[] = [
         title: 'Notifications',
         href: '/dashboard/notifications',
         icon: Bell,
+        permission: 'notifications',
       },
       {
         title: 'Billing',
         href: '/dashboard/billing',
         icon: CreditCard,
+        permission: 'billing',
       },
       {
         title: 'Integrations',
         href: '/dashboard/integrations',
         icon: Zap,
+        permission: 'integrations',
       },
       {
         title: 'Settings',
         href: '/dashboard/settings',
         icon: Settings,
+        permission: 'settings',
       },
     ],
   },
@@ -91,21 +99,17 @@ export const getSidebarNavigationWithPermissions = (role: string) => {
     .map((group) => ({
       ...group,
       items: group.items.filter((item) => {
-        // Show all items if user is admin (admin has full permissions)
         if (role === 'admin') {
           return true;
         }
 
-        // For regular users, check if they have full CRUD permissions
-        // Check each permission type in rolePermissions
         for (const [permissionType, permissions] of Object.entries(rolePermissions)) {
-          const hasCreatePermission = permissions.includes('create');
-          const hasUpdatePermission = permissions.includes('update');
-          const hasDeletePermission = permissions.includes('delete');
+          if (item.permission === permissionType) {
+            const hasAccessPermission = permissions.includes('can-access');
 
-          // If this permission type has full CRUD, show the item
-          if (hasCreatePermission && hasUpdatePermission && hasDeletePermission) {
-            return true;
+            if (hasAccessPermission) {
+              return true;
+            }
           }
         }
 
@@ -113,4 +117,20 @@ export const getSidebarNavigationWithPermissions = (role: string) => {
       }),
     }))
     .filter((group) => group.items.length > 0);
+};
+
+export const checkPermission = (role: string, permission: string): boolean => {
+  if (role === 'admin') {
+    return true;
+  }
+
+  const rolePermissions = role === 'admin' ? admin.statements : regular.statements;
+
+  const permissionArray = rolePermissions[permission as keyof typeof rolePermissions];
+
+  if (!permissionArray) {
+    return false;
+  }
+
+  return permissionArray.includes('can-access');
 };

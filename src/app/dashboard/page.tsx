@@ -5,7 +5,7 @@ import {
   defaultSidebarNavigation,
   type BreadcrumbItem,
 } from '@/components/dashboard';
-import { getSidebarNavigationWithPermissions } from '@/components/dashboard/navigation';
+import { getSidebarNavigationWithPermissions } from '@/lib/dashboard-navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { authClient } from '@/lib/auth-client';
 import { regular } from '@/lib/permissions';
@@ -21,6 +21,9 @@ const breadcrumbItems: BreadcrumbItem[] = [
 
 export default function DashboardPage() {
   const { data: session } = authClient.useSession();
+
+  console.log(getSidebarNavigationWithPermissions(session?.user.role ?? 'regular'));
+
   return (
     <DashboardLayout
       sidebarNavigation={getSidebarNavigationWithPermissions(session?.user.role ?? 'regular')}
