@@ -4,12 +4,14 @@ import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { DashboardHeader } from './dashboard-header';
 import { DashboardSidebar } from './dashboard-sidebar';
 import { DashboardLayoutProps } from './types';
+import { getSidebarNavigationWithPermissions } from '@/lib/dashboard-navigation';
+import { authClient } from '@/lib/auth-client';
 
-export function DashboardLayout({
-  children,
-  sidebarNavigation,
-  breadcrumbItems = [],
-}: DashboardLayoutProps) {
+export function DashboardLayout({ children, breadcrumbItems = [] }: DashboardLayoutProps) {
+  const { data: session } = authClient.useSession();
+  const userRole = session?.user?.role ?? 'regular';
+  const sidebarNavigation = getSidebarNavigationWithPermissions(userRole);
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">

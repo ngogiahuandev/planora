@@ -18,7 +18,6 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { DashboardSidebarProps } from './types';
-import { Terminal } from 'lucide-react';
 
 export function DashboardSidebar({ navigation }: DashboardSidebarProps) {
   const pathname = usePathname();

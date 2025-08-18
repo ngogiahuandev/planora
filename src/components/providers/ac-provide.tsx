@@ -1,10 +1,8 @@
-'use client';
-
-import { ReactNode } from 'react';
-import { authClient } from '@/lib/auth-client';
-import { redirect } from 'next/navigation';
-import { checkPermission } from '@/lib/dashboard-navigation';
 import { ErrorScreen } from '@/components/layouts/error-screen';
+import { auth } from '@/lib/auth';
+import { checkPermission } from '@/lib/dashboard-navigation';
+import { headers } from 'next/headers';
+import { ReactNode } from 'react';
 
 interface AccessControlProviderProps {
   children: ReactNode;
@@ -12,14 +10,15 @@ interface AccessControlProviderProps {
   permissions: string;
 }
 
-export const AccessControlProvider = ({ children, permissions }: AccessControlProviderProps) => {
-  const { data: session } = authClient.useSession();
+export const AccessControlProvider = async ({
+  children,
+  permissions,
+}: AccessControlProviderProps) => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-  if (!session) {
-    return redirect('/');
-  }
-
-  const hasAccess = checkPermission(session.user.role ?? '', permissions);
+  const hasAccess = checkPermission(session?.user?.role ?? '', permissions);
 
   if (!hasAccess) {
     return <ErrorScreen code="403" message="You do not have access to this page" />;

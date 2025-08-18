@@ -1,10 +1,6 @@
-'use client';
-
 import { DashboardLayout, type BreadcrumbItem } from '@/components/dashboard';
-import { getSidebarNavigationWithPermissions } from '@/lib/dashboard-navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { authClient } from '@/lib/auth-client';
-import { Users, FileText, CreditCard, MessageSquare, Calendar, Bell } from 'lucide-react';
+import { Bell, Calendar, CreditCard, FileText, MessageSquare, Users } from 'lucide-react';
 
 const breadcrumbItems: BreadcrumbItem[] = [
   {
@@ -14,15 +10,8 @@ const breadcrumbItems: BreadcrumbItem[] = [
 ];
 
 export default function DashboardPage() {
-  const { data: session } = authClient.useSession();
-
-  console.log(getSidebarNavigationWithPermissions(session?.user.role ?? 'regular'));
-
   return (
-    <DashboardLayout
-      sidebarNavigation={getSidebarNavigationWithPermissions(session?.user.role ?? 'regular')}
-      breadcrumbItems={breadcrumbItems}
-    >
+    <DashboardLayout breadcrumbItems={breadcrumbItems}>
       <div className="space-y-6">
         {/* Page Header */}
         <div className="space-y-1">

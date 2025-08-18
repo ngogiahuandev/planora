@@ -21,7 +21,6 @@ export interface BreadcrumbItem {
 
 export interface DashboardLayoutProps {
   children: React.ReactNode;
-  sidebarNavigation: SidebarNavGroup[];
   breadcrumbItems?: BreadcrumbItem[];
   rightContent?: React.ReactNode;
 }
