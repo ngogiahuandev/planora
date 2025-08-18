@@ -4,6 +4,7 @@ import {
   type BreadcrumbItem,
 } from '@/components/dashboard';
 import { DashboardTitle } from '@/components/dashboard/dashbaord-title';
+import { UserDataTable } from '@/components/data-table/user-data-table/user-data-table';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 
@@ -25,13 +26,7 @@ export default function UsersPage() {
           title="Users"
           description="Manage your workspace users and their permissions."
         />
-
-        <div className="flex items-center space-x-2">
-          <div className="relative max-w-sm flex-1">
-            <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
-            <Input placeholder="Search users..." className="pl-8" />
-          </div>
-        </div>
+        <UserDataTable />
       </div>
     </DashboardLayout>
   );

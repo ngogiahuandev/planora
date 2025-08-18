@@ -31,6 +31,9 @@ const eslintConfig = [
       '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/prefer-const': 'warn',
+
+      // Tanstack specific
+      '@tanstack/eslint-plugin-query': 'warn',
     },
   },
 ];
