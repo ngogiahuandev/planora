@@ -2,15 +2,15 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CustomFormField } from '@/components/ui/custom-form-field';
-import { Form } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { authClient } from '@/lib/auth-client';
 import { emailToSlug } from '@/lib/slug';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useForm } from '@tanstack/react-form';
 import Link from 'next/link';
-import { useTransition } from 'react';
-import { useForm } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import z from 'zod';
 
 const formSchema = z
@@ -26,33 +26,33 @@ const formSchema = z
   });
 
 export default function SignUpForm() {
-  const [isPending, startTransition] = useTransition();
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const router = useRouter();
+  const form = useForm({
     defaultValues: {
       name: '',
       email: '',
       password: '',
       confirmPassword: '',
     },
-  });
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    startTransition(async () => {
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async (values) => {
       const { data, error } = await authClient.signUp.email({
-        name: values.name,
-        email: values.email,
-        password: values.password,
-        slug: emailToSlug(values.email),
+        name: values.value.name,
+        email: values.value.email,
+        password: values.value.password,
+        slug: emailToSlug(values.value.email),
       });
       if (error) {
-        console.error(error);
+        toast.error(error.message);
       }
       if (data) {
-        console.log(data);
+        toast.success('Signed up successfully');
+        router.push('/');
       }
-    });
-  }
+    },
+  });
   return (
     <Card className="bg-background mx-auto w-full max-w-md border-none shadow-none">
       <CardHeader className="space-y-1">
@@ -60,48 +60,122 @@ export default function SignUpForm() {
         <CardDescription className="">Create a new account to get started</CardDescription>
       </CardHeader>
       <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <CustomFormField
-              control={form.control}
-              name="name"
-              type="text"
-              label="Name"
-              placeholder="Enter your name"
-            />
-            <CustomFormField
-              control={form.control}
-              name="email"
-              type="email"
-              label="Email"
-              placeholder="Enter your email"
-            />
-            <CustomFormField
-              control={form.control}
-              name="password"
-              type="password"
-              label="Password"
-              placeholder="Enter your password"
-            />
-            <CustomFormField
-              control={form.control}
-              name="confirmPassword"
-              type="password"
-              label="Confirm Password"
-              placeholder="Confirm your password"
-            />
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? (
-                <>
-                  <Loader2 className="animate-spin" />
-                  Signing up...
-                </>
-              ) : (
-                'Sign up'
-              )}
-            </Button>
-          </form>
-        </Form>
+        <form
+          className="space-y-6"
+          onSubmit={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            form.handleSubmit();
+          }}
+        >
+          <form.Field
+            name="name"
+            children={(field) => (
+              <div className="space-y-2">
+                <Label
+                  htmlFor={field.name}
+                  className={cn(field.state.meta.errors.length > 0 && 'text-red-500')}
+                >
+                  Name
+                </Label>
+                <Input
+                  id={field.name}
+                  name="name"
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder="Enter your name"
+                  type="text"
+                />
+                {field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500">{field.state.meta.errors[0]?.message}</p>
+                )}
+              </div>
+            )}
+          />
+          <form.Field
+            name="email"
+            children={(field) => (
+              <div className="space-y-2">
+                <Label
+                  htmlFor={field.name}
+                  className={cn(field.state.meta.errors.length > 0 && 'text-red-500')}
+                >
+                  Email
+                </Label>
+                <Input
+                  id={field.name}
+                  name="email"
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder="Enter your email"
+                  type="email"
+                />
+                {field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500">{field.state.meta.errors[0]?.message}</p>
+                )}
+              </div>
+            )}
+          />
+          <form.Field
+            name="password"
+            children={(field) => (
+              <div className="space-y-2">
+                <Label
+                  htmlFor={field.name}
+                  className={cn(field.state.meta.errors.length > 0 && 'text-red-500')}
+                >
+                  Password
+                </Label>
+                <Input
+                  id={field.name}
+                  name="password"
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder="Enter your password"
+                  type="password"
+                />
+                {field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500">{field.state.meta.errors[0]?.message}</p>
+                )}
+              </div>
+            )}
+          />
+          <form.Field
+            name="confirmPassword"
+            children={(field) => (
+              <div className="space-y-2">
+                <Label
+                  htmlFor={field.name}
+                  className={cn(field.state.meta.errors.length > 0 && 'text-red-500')}
+                >
+                  Confirm Password
+                </Label>
+                <Input
+                  id={field.name}
+                  name="confirmPassword"
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder="Confirm your password"
+                  type="password"
+                />
+                {field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500">{field.state.meta.errors[0]?.message}</p>
+                )}
+              </div>
+            )}
+          />
+          <form.Subscribe selector={(state) => [state.isSubmitting]}>
+            {([isSubmitting]) => (
+              <Button type="submit" disabled={isSubmitting} className="w-full">
+                {isSubmitting ? 'Signing up...' : 'Sign up'}
+              </Button>
+            )}
+          </form.Subscribe>
+        </form>
         <div className="mt-4 text-center text-sm">
           Already have an account?{' '}
           <Link href="/sign-in" className="text-blue-600 hover:underline">
