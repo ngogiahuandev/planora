@@ -13,6 +13,12 @@ const statement = {
   billing: ['read', 'update', 'can-access'],
 } as const;
 
+export type PermissionStatement = typeof statement;
+
+export type Permissions = Partial<{
+  [K in keyof PermissionStatement]: PermissionStatement[K][number][];
+}>;
+
 export const ac = createAccessControl(statement);
 
 export const admin = ac.newRole({

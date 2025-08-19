@@ -8,3 +8,6 @@ export type GetAllUsersResponse = {
     limit: number;
   };
 };
+
+export type SortableFields = 'name' | 'email' | 'createdAt' | 'updatedAt' | 'role';
+export type SortOrder = 'asc' | 'desc';

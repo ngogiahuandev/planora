@@ -11,9 +11,5 @@ interface DashboardLayoutProps {
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  return (
-    <AccessControlProvider roles="admin,regular" permissions="project">
-      {children}
-    </AccessControlProvider>
-  );
+  return <AccessControlProvider>{children}</AccessControlProvider>;
 }

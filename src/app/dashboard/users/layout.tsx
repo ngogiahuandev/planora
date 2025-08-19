@@ -11,9 +11,5 @@ interface UsersLayoutProps {
 }
 
 export default function UsersLayout({ children }: UsersLayoutProps) {
-  return (
-    <AccessControlProvider roles="admin" permissions="user">
-      {children}
-    </AccessControlProvider>
-  );
+  return <AccessControlProvider permissions={{ user: ['list'] }}>{children}</AccessControlProvider>;
 }
