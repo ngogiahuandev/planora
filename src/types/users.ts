@@ -11,3 +11,8 @@ export type GetAllUsersResponse = {
 
 export type SortableFields = 'name' | 'email' | 'createdAt' | 'updatedAt' | 'role';
 export type SortOrder = 'asc' | 'desc';
+
+export enum UserRole {
+  ADMIN = 'admin',
+  REGULAR = 'regular',
+}

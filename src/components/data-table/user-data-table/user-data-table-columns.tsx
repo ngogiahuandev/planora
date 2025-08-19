@@ -15,6 +15,10 @@ import { formatSlug } from '@/lib/slug';
 import { User } from '@/db/db';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
+import { ChangeUserRole } from '@/components/data-table/user-data-table/change-user-role';
+import { SetUserPassword } from '@/components/data-table/user-data-table/set-user-password';
+import { BanUser } from '@/components/data-table/user-data-table/ban-user';
+import { UnbanUser } from '@/components/data-table/user-data-table/unban-user';
 
 export const userDataTableColumns = (offset: number = 0): ColumnDef<User>[] => [
   {
@@ -100,6 +104,14 @@ export const userDataTableColumns = (offset: number = 0): ColumnDef<User>[] => [
     },
   },
   {
+    accessorKey: 'banned',
+    header: 'Banned',
+    cell: ({ row }) => {
+      const banned = row.getValue('banned');
+      return <Badge variant={banned ? 'destructive' : 'outline'}>{banned ? 'Yes' : 'No'}</Badge>;
+    },
+  },
+  {
     accessorKey: 'createdAt',
     header: 'Created At',
     cell: ({ row }) => {
@@ -146,9 +158,11 @@ export const userDataTableColumns = (offset: number = 0): ColumnDef<User>[] => [
               Copy user ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View user</DropdownMenuItem>
-            <DropdownMenuItem>Edit user</DropdownMenuItem>
+            <ChangeUserRole user={user} />
+            <SetUserPassword user={user} />
+            <UnbanUser user={user} />
             <DropdownMenuSeparator />
+            <BanUser user={user} />
             <DropdownMenuItem className="text-destructive">Delete user</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

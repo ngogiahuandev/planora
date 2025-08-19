@@ -2,6 +2,15 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { authClient } from '@/lib/auth-client';
 import { faker } from '@faker-js/faker';
@@ -11,6 +20,7 @@ import { emailToSlug } from '@/lib/slug';
 
 export const CreateManyUsersButton = () => {
   const [isCreating, setIsCreating] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const createManyUsers = async () => {
@@ -70,13 +80,53 @@ export const CreateManyUsersButton = () => {
       toast.error('An unexpected error occurred while creating users.');
     } finally {
       setIsCreating(false);
+      setDialogOpen(false); // Close dialog after completion
     }
   };
 
+  const handleConfirm = () => {
+    createManyUsers();
+  };
+
+  const handleCancel = () => {
+    setDialogOpen(false);
+  };
+
   return (
-    <Button onClick={createManyUsers} disabled={isCreating} variant="outline" className="gap-2">
-      {isCreating ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
-      {isCreating ? 'Creating...' : 'Create 10 Users'}
-    </Button>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="gap-2" disabled={isCreating}>
+          <UserPlus className="h-4 w-4" />
+          Create 10 Users
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create Multiple Users</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to create 10 new users with randomly generated data? This action
+            cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="gap-2">
+          <Button variant="outline" onClick={handleCancel} disabled={isCreating}>
+            Cancel
+          </Button>
+          <Button onClick={handleConfirm} disabled={isCreating} className="gap-2">
+            {isCreating ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              <>
+                <UserPlus className="h-4 w-4" />
+                Create Users
+              </>
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };

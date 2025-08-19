@@ -11,5 +11,9 @@ interface UsersLayoutProps {
 }
 
 export default function UsersLayout({ children }: UsersLayoutProps) {
-  return <AccessControlProvider permissions={{ user: ['list'] }}>{children}</AccessControlProvider>;
+  return (
+    <AccessControlProvider permissions={{ user: ['list', 'update', 'create', 'delete', 'ban'] }}>
+      {children}
+    </AccessControlProvider>
+  );
 }
